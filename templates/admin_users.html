@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="color: var(--primary-color);">Administração de Usuários</h2>
+        <span
+            style="background-color: #e6f0ff; color: var(--primary-color); padding: 5px 10px; border-radius: 15px; font-size: 0.9rem;">
+            Total: {{ users|length }}
+        </span>
+    </div>
+
+    <p style="color: #666; margin-bottom: 1.5rem;">Lista de todos os usuários cadastrados no sistema.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50px;">ID</th>
+                <th>Nome Completo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.full_name }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">Nenhum usuário encontrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

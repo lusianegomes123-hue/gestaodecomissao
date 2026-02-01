@@ -30,6 +30,13 @@
                         class="{{ 'active' if request.endpoint == 'consultas' else '' }}">Consultas</a></li>
                 <li><a href="{{ url_for('procedimentos') }}"
                         class="{{ 'active' if request.endpoint == 'procedimentos' else '' }}">Procedimentos</a></li>
+
+                {% if current_user.full_name.strip().lower() == 'lusiane gomes simão' %}
+                <li><a href="{{ url_for('admin_users') }}"
+                        class="{{ 'active' if request.endpoint == 'admin_users' else '' }}"
+                        style="color: #ff9900;">Admin</a></li>
+                {% endif %}
+
                 <li style="margin-left: 20px; display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 0.9rem; opacity: 0.9;">Olá, {{ current_user.full_name.split()[0] }}</span>
                     <a href="{{ url_for('logout') }}"

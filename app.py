@@ -207,6 +207,17 @@ def procedimentos():
     total = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
     return render_template('procedimentos.html', procedimentos=lista, total_comissao=total)
 
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    # Verificação de segurança hardcoded para o admin
+    if current_user.full_name.strip().lower() != "lusiane gomes simão":
+        flash('Acesso negado. Esta área é restrita.')
+        return redirect(url_for('home'))
+    
+    users = User.query.order_by(User.full_name).all()
+    return render_template('admin_users.html', users=users)
+
 from pyngrok import ngrok
 
 if __name__ == '__main__':
