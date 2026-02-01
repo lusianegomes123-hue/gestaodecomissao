@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Registrar Procedimento / Cirurgia</h2>
+    <form method="POST">
+        <div>
+            <label for="nome_cliente">Nome do Cliente / Paciente</label>
+            <input type="text" name="nome_cliente" id="nome_cliente" required>
+        </div>
+        <div>
+            <label for="tipo_procedimento">Tipo de Procedimento</label>
+            <input type="text" name="tipo_procedimento" id="tipo_procedimento" value="Cirurgia" required>
+        </div>
+        <p><strong>Comissão Fixa: R$ 200,00 por procedimento.</strong></p>
+        <button type="submit">Adicionar Procedimento</button>
+    </form>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Meus Procedimentos (Histórico Geral)</h2>
+        <h3>Total Comissão: R$ {{ "%.2f"|format(total_comissao)|replace('.', ',') }}</h3>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Comissão Fixa</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proc in procedimentos %}
+            <tr>
+                <td>{{ proc.data_procedimento.strftime('%d/%m/%Y') }}</td>
+                <td>{{ proc.nome_cliente }}</td>
+                <td>{{ proc.tipo_procedimento }}</td>
+                <td style="font-weight: bold; color: var(--primary-color);">R$ {{
+                    "%.2f"|format(proc.comissao_calculada)|replace('.', ',') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center;">Nenhum procedimento registrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

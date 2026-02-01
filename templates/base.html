@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Comissões - ➕M</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <span>➕M</span> Gestão de Comissões
+        </div>
+        <nav>
+            <ul>
+                {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('home') }}"
+                        class="{{ 'active' if request.endpoint == 'home' else '' }}">Início</a></li>
+                <li><a href="{{ url_for('relatorios') }}"
+                        class="{{ 'active' if request.endpoint == 'relatorios' else '' }}">Geral</a></li>
+                <li><a href="{{ url_for('vendas') }}"
+                        class="{{ 'active' if request.endpoint == 'vendas' else '' }}">Vendas</a></li>
+                <li><a href="{{ url_for('cobrancas') }}"
+                        class="{{ 'active' if request.endpoint == 'cobrancas' else '' }}">Cobranças</a></li>
+                <li><a href="{{ url_for('consultas') }}"
+                        class="{{ 'active' if request.endpoint == 'consultas' else '' }}">Consultas</a></li>
+                <li><a href="{{ url_for('procedimentos') }}"
+                        class="{{ 'active' if request.endpoint == 'procedimentos' else '' }}">Procedimentos</a></li>
+                <li style="margin-left: 20px; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.9rem; opacity: 0.9;">Olá, {{ current_user.full_name.split()[0] }}</span>
+                    <a href="{{ url_for('logout') }}"
+                        style="background-color: rgba(255,255,255,0.2); padding: 5px 10px;">Sair</a>
+                </li>
+                {% else %}
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+                <li><a href="{{ url_for('register') }}">Cadastro</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p style="text-align: center; color: #999; margin-top: 2rem;">&copy; 2026 Sistema de Gestão de Comissões</p>
+    </footer>
+
+    <script>
+        // Função para garantir aba única
+        const bc = new BroadcastChannel('app_singleton');
+
+        bc.onmessage = (event) => {
+            if (event.data === 'new_tab_opened') {
+                // Outra aba abriu, eu sou a antiga.
+                // Posso mostrar um alerta ou não fazer nada.
+            }
+            if (event.data === 'check_if_open') {
+                // Nova aba perguntando. Respondo que estou aqui.
+                bc.postMessage('i_am_open');
+            }
+            if (event.data === 'i_am_open') {
+                // Opa, já tem gente.
+                document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;background:#f0f0f0;color:#333;"><h1>Aplicativo já está aberto!</h1><p>Você já possui uma aba deste sistema aberta. Por favor, use a aba original.</p><button onclick="window.close()" style="padding:10px 20px;margin-top:20px;cursor:pointer;">Fechar esta aba</button></div>';
+            }
+        };
+
+        // Pergunto se tem alguém
+        bc.postMessage('check_if_open');
+    </script>
+</body>
+
+</html>

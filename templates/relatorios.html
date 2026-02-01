@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- 1. Total Geral Acumulado -->
+<div class="total-geral-highlight" style="background: linear-gradient(135deg, #003366 0%, #001a33 100%);">
+    <h2 style="color: #66A3FF; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px;">Total Geral Acumulado
+        (Todos os tempos)</h2>
+    <div class="value" style="color: white; font-size: 3.5rem;">R$ {{ "%.2f"|format(total_acumulado_geral)|replace('.',
+        ',') }}</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+
+    <!-- 2. Histórico Mensal -->
+    <div class="card">
+        <h3>Histórico Mensal</h3>
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">Clique para ver detalhes.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mês/Ano</th>
+                    <th>Total</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in lista_historico %}
+                <tr {% if item.mes==filtro.mes and item.ano==filtro.ano
+                    %}style="background-color: #e6f0ff; font-weight: bold;" {% endif %}>
+                    <td>{{ item.label }}</td>
+                    <td>R$ {{ "%.2f"|format(item.total)|replace('.', ',') }}</td>
+                    <td>
+                        <a href="{{ url_for('relatorios', mes=item.mes, ano=item.ano) }}"
+                            style="color: var(--primary-color); text-decoration: none;">Ver Detalhes &rarr;</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3">Nenhum registro encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 3. Detalhes do Mês Selecionado -->
+    <div class="card">
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 1rem; margin-bottom: 1rem;">
+            <h3>Detalhes: {{ filtro.mes }}/{{ filtro.ano }}</h3>
+            <h3 style="color: var(--primary-color);">Total Mês: R$ {{ "%.2f"|format(filtro.total)|replace('.', ',') }}
+            </h3>
+        </div>
+
+        <h4>Vendas</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Cliente</th>
+                    <th>Comissão</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in detalhes['vendas'] %}
+                <tr>
+                    <td>{{ v.data_venda.strftime('%d/%m') }}</td>
+                    <td>{{ v.nome_cliente }}</td>
+                    <td>R$ {{ "%.2f"|format(v.comissao_calculada)|replace('.', ',') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="color: #999;">Sem vendas este mês.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h4 style="margin-top: 1.5rem;">Cobranças</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Cliente</th>
+                    <th>Comissão</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in detalhes['cobrancas'] %}
+                <tr>
+                    <td>{{ c.data_negociacao.strftime('%d/%m') }}</td>
+                    <td>{{ c.nome_cliente }}</td>
+                    <td>R$ {{ "%.2f"|format(c.comissao_calculada)|replace('.', ',') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="color: #999;">Sem cobranças este mês.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

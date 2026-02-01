@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Registrar Consulta Realizada</h2>
+    <form method="POST">
+        <div>
+            <label for="nome_cliente">Nome do Cliente / Paciente</label>
+            <input type="text" name="nome_cliente" id="nome_cliente" required>
+        </div>
+        <p><strong>Comissão Fixa: R$ 20,00 por consulta.</strong></p>
+        <button type="submit">Registrar Consulta (+ R$ 20,00)</button>
+        form>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Minhas Consultas (Histórico Geral)</h2>
+        <h3>Total Comissão: R$ {{ "%.2f"|format(total_comissao)|replace('.', ',') }}</h3>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Cliente</th>
+                <th>Status</th>
+                <th>Comissão Fixa</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for consulta in consultas %}
+            <tr>
+                <td>{{ consulta.data_consulta.strftime('%d/%m/%Y') }}</td>
+                <td>{{ consulta.nome_cliente }}</td>
+                <td>{{ consulta.status }}</td>
+                <td style="font-weight: bold; color: var(--primary-color);">R$ {{
+                    "%.2f"|format(consulta.comissao_calculada)|replace('.', ',') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center;">Nenhuma consulta registrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

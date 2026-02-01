@@ -1,0 +1,16 @@
+# Python leftovers
+__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+
+# Database
+*.db
+instance/
+comissoes_prod.db
+comissoes_v1_restaurado.db
+
+# Virtual Environment
+venv/
+.venv/

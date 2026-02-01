@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 400px; margin: 2rem auto;">
+    <h2 style="text-align: center;">Acesso ao Sistema</h2>
+    <form method="POST">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div style="background-color: #ffd7d7; color: #990000; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+            {{ messages[0] }}</div>
+        {% endif %}
+        {% endwith %}
+
+        <div>
+            <label for="full_name">Nome Completo</label>
+            <input type="text" name="full_name" id="full_name" placeholder="Digite seu Nome Completo" required>
+        </div>
+        <div>
+            <label for="password">Senha</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+        <button type="submit">Entrar</button>
+        <p style="text-align: center; margin-top: 1rem;">
+            Novo por aqui? <a href="{{ url_for('register') }}">Cadastre-se</a>
+        </p>
+    </form>
+</div>
+{% endblock %}

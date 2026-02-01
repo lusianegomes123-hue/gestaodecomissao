@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="total-geral-highlight">
+    <h2>Comissão Total Geral</h2>
+    <div class="value">R$ {{ "%.2f"|format(resumo['TOTAL'])|replace('.', ',') }}</div>
+</div>
+
+<div class="summary-grid">
+    <div class="summary-card">
+        <h3>Vendas</h3>
+        <p>R$ {{ "%.2f"|format(resumo['Vendas'])|replace('.', ',') }}</p>
+    </div>
+    <div class="summary-card">
+        <h3>Cobranças</h3>
+        <p>R$ {{ "%.2f"|format(resumo['Cobranças'])|replace('.', ',') }}</p>
+    </div>
+    <div class="summary-card">
+        <h3>Consultas</h3>
+        <p>R$ {{ "%.2f"|format(resumo['Consultas'])|replace('.', ',') }}</p>
+    </div>
+    <div class="summary-card">
+        <h3>Procedimentos</h3>
+        <p>R$ {{ "%.2f"|format(resumo['Procedimentos'])|replace('.', ',') }}</p>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 2rem;">
+    <h3>Resumo Consolidado</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Categoria</th>
+                <th>Comissão Calculada</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Vendas (Talão, Cartão, PIX)</td>
+                <td>R$ {{ "%.2f"|format(resumo['Vendas'])|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>Cobranças</td>
+                <td>R$ {{ "%.2f"|format(resumo['Cobranças'])|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>Consultas Médicas</td>
+                <td>R$ {{ "%.2f"|format(resumo['Consultas'])|replace('.', ',') }}</td>
+            </tr>
+            <tr>
+                <td>Procedimentos Cirúrgicos</td>
+                <td>R$ {{ "%.2f"|format(resumo['Procedimentos'])|replace('.', ',') }}</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr style="font-weight: bold; background-color: #eee;">
+                <td>TOTAL</td>
+                <td>R$ {{ "%.2f"|format(resumo['TOTAL'])|replace('.', ',') }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% endblock %}
