@@ -19,7 +19,11 @@
             <label for="password">Senha</label>
             <input type="password" name="password" id="password" required>
         </div>
-        <button type="submit">Entrar</button>
+        <button type="submit" style="width: 100%; margin-top: 1rem;">Entrar</button>
+
+        <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem;">
+            <a href="{{ url_for('recover_password') }}" style="color: #666;">Esqueci minha senha</a>
+        </div>
         <p style="text-align: center; margin-top: 1rem;">
             Novo por aqui? <a href="{{ url_for('register') }}">Cadastre-se</a>
         </p>

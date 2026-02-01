@@ -50,9 +50,10 @@ def register():
             flash('Por favor, digite seu Nome Completo.')
             return redirect(url_for('register'))
 
-        # Verifica duplicidade
-        if User.query.filter_by(username=full_name).first():
-            flash('Este Nome já possui cadastro. Tente fazer login.')
+        # Verifica duplicidade (Ignorando Maiúsculas/Minúsculas)
+        existing_user = User.query.filter(func.lower(User.username) == full_name.lower()).first()
+        if existing_user:
+            flash('Este Nome já possui cadastro. Tente fazer login ou recuperar senha.')
             return redirect(url_for('register'))
             
         # Cria usuario (username = full_name)
@@ -65,6 +66,45 @@ def register():
         return redirect(url_for('login'))
         
     return render_template('register.html')
+
+@app.route('/recover_password', methods=['GET', 'POST'])
+def recover_password():
+    if request.method == 'POST':
+        full_name = request.form.get('full_name').strip()
+        email = request.form.get('email', '').strip().lower()
+        step = request.form.get('step')
+        new_password = request.form.get('new_password')
+
+        # 1. Busca Usuário (Case Insensitive)
+        user = User.query.filter(func.lower(User.username) == full_name.lower()).first()
+
+        if not user:
+            flash('Usuário não encontrado.')
+            return render_template('recover_password.html', valid_user=None)
+
+        # 2. Validação Lógica (Parte do nome no email)
+        # Ex: Nome "Lusiane Gomes", Email "lusiane@..." -> Match
+        # Ex: "123" no email não conta, vamos exigir pelo menos 3 letras para evitar falso positivo fácil
+        name_parts = [p.lower() for p in user.full_name.split() if len(p) > 2]
+        
+        # Regra: Pelo menos uma parte do nome (com >2 letras) deve estar no email
+        match = any(part in email for part in name_parts)
+        
+        if not match:
+            flash('O e-mail informado não corresponde aos critérios de segurança do nome cadastrado.')
+            return render_template('recover_password.html', valid_user=None)
+
+        # 3. Se for etapa de Reset
+        if step == 'reset' and new_password:
+            user.set_password(new_password)
+            db.session.commit()
+            flash('Senha redefinida com sucesso! Faça login.')
+            return redirect(url_for('login'))
+
+        # 4. Se passou validação mas não é reset ainda, mostra formulário de senha
+        return render_template('recover_password.html', valid_user=user, email_attempt=email)
+
+    return render_template('recover_password.html', valid_user=None)
 
 @app.route('/logout')
 @login_required
