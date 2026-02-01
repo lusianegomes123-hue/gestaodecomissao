@@ -100,6 +100,54 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <h4 style="margin-top: 1.5rem;">Consultas</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Cliente</th>
+                    <th>Comissão</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in detalhes['consultas'] %}
+                <tr>
+                    <td>{{ c.data_consulta.strftime('%d/%m') }}</td>
+                    <td>{{ c.nome_cliente }}</td>
+                    <td>R$ {{ "%.2f"|format(c.comissao_calculada)|replace('.', ',') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="color: #999;">Sem consultas este mês.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h4 style="margin-top: 1.5rem;">Procedimentos</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Cliente</th>
+                    <th>Comissão</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in detalhes['procedimentos'] %}
+                <tr>
+                    <td>{{ p.data_procedimento.strftime('%d/%m') }}</td>
+                    <td>{{ p.nome_cliente }}</td>
+                    <td>R$ {{ "%.2f"|format(p.comissao_calculada)|replace('.', ',') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="color: #999;">Sem procedimentos este mês.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}
