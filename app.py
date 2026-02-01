@@ -77,7 +77,8 @@ def logout():
 @app.route('/')
 @login_required
 def home():
-    return render_template('home.html')
+    agora = datetime.now()
+    return render_template('home.html', agora=agora)
 
 @app.route('/geral')
 @login_required
