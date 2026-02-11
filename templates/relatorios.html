@@ -20,28 +20,32 @@
     <!-- Cards de Resumo por Categoria -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
         <div class="card" style="padding: 1rem; border-left: 5px solid #28a745;">
-            <h4 style="margin: 0; color: #555;">Vendas</h4>
-            <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">{{ resumo_geral['vendas']['qtd'] }}</div>
-            <div style="color: #888;">R$ {{ "%.2f"|format(resumo_geral['vendas']['val'])|replace('.', ',') }}</div>
+            <h4 style="margin: 0; color: #555;">Vendas <small>({{ resumo_geral['vendas']['qtd'] }})</small></h4>
+            <div style="font-size: 1.1rem; font-weight: bold; color: #555;">Trans: R$ {{
+                "%.2f"|format(resumo_geral['vendas']['bruto'])|replace('.', ',') }}</div>
+            <div style="font-size: 0.9rem; color: #28a745;">Com: R$ {{
+                "%.2f"|format(resumo_geral['vendas']['val'])|replace('.', ',') }}</div>
         </div>
         <div class="card" style="padding: 1rem; border-left: 5px solid #dc3545;">
-            <h4 style="margin: 0; color: #555;">Cobranças</h4>
-            <div style="font-size: 1.5rem; font-weight: bold; color: #dc3545;">{{ resumo_geral['cobrancas']['qtd'] }}
-            </div>
-            <div style="color: #888;">R$ {{ "%.2f"|format(resumo_geral['cobrancas']['val'])|replace('.', ',') }}</div>
+            <h4 style="margin: 0; color: #555;">Cobranças <small>({{ resumo_geral['cobrancas']['qtd'] }})</small></h4>
+            <div style="font-size: 1.1rem; font-weight: bold; color: #555;">Neg: R$ {{
+                "%.2f"|format(resumo_geral['cobrancas']['bruto'])|replace('.', ',') }}</div>
+            <div style="font-size: 0.9rem; color: #dc3545;">Com: R$ {{
+                "%.2f"|format(resumo_geral['cobrancas']['val'])|replace('.', ',') }}</div>
         </div>
         <div class="card" style="padding: 1rem; border-left: 5px solid #ffc107;">
             <h4 style="margin: 0; color: #555;">Consultas</h4>
             <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">{{ resumo_geral['consultas']['qtd'] }}
             </div>
-            <div style="color: #888;">R$ {{ "%.2f"|format(resumo_geral['consultas']['val'])|replace('.', ',') }}</div>
+            <div style="color: #888;">Com: R$ {{ "%.2f"|format(resumo_geral['consultas']['val'])|replace('.', ',') }}
+            </div>
         </div>
         <div class="card" style="padding: 1rem; border-left: 5px solid #17a2b8;">
             <h4 style="margin: 0; color: #555;">Procedimentos</h4>
             <div style="font-size: 1.5rem; font-weight: bold; color: #17a2b8;">{{ resumo_geral['procedimentos']['qtd']
                 }}</div>
-            <div style="color: #888;">R$ {{ "%.2f"|format(resumo_geral['procedimentos']['val'])|replace('.', ',') }}
-            </div>
+            <div style="color: #888;">Com: R$ {{ "%.2f"|format(resumo_geral['procedimentos']['val'])|replace('.', ',')
+                }}</div>
         </div>
     </div>
 </div>

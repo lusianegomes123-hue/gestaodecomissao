@@ -33,9 +33,10 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <h2>Minhas Vendas (Histórico Geral)</h2>
         <div style="text-align: right;">
-            <p style="margin: 0; font-weight: bold;">Qtd: {{ total_qtd }}</p>
-            <h3 style="margin: 0; color: var(--primary-color);">Total: R$ {{ "%.2f"|format(total_comissao)|replace('.',
-                ',') }}</h3>
+            <p style="margin: 0; font-weight: bold; color: #555;">Total Vendido: R$ {{
+                "%.2f"|format(total_bruto)|replace('.', ',') }}</p>
+            <h3 style="margin: 0; color: var(--primary-color);">Total Comissão: R$ {{
+                "%.2f"|format(total_comissao)|replace('.', ',') }}</h3>
         </div>
     </div>
     <table>
