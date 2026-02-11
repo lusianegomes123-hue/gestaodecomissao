@@ -3,22 +3,24 @@
 {% block content %}
 <div class="card">
     <h2>Registrar Cobrança</h2>
-    <form method="POST">
+    <form method="POST"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
         <div>
             <label for="nome_cliente">Nome do Cliente</label>
-            <input type="text" name="nome_cliente" id="nome_cliente" required>
+            <input type="text" name="nome_cliente" id="nome_cliente" required style="width: 100%;">
         </div>
         <div>
             <label for="data_negociacao">Data da Negociação</label>
-            <input type="date" name="data_negociacao" id="data_negociacao" required>
+            <input type="date" name="data_negociacao" id="data_negociacao" required style="width: 100%;">
             <script>document.getElementById('data_negociacao').valueAsDate = new Date();</script>
         </div>
         <div>
             <label for="valor_negociado">Valor Negociado (R$)</label>
-            <input type="number" step="0.01" name="valor_negociado" id="valor_negociado" placeholder="0,00" required>
-            <small>Regra: 3% sobre o valor negociado.</small>
+            <input type="number" step="0.01" name="valor_negociado" id="valor_negociado" placeholder="0,00" required
+                style="width: 100%;">
+            <small style="display:block; margin-top:2px; font-size:0.75rem;">Regra: 3% sobre valor.</small>
         </div>
-        <button type="submit">Adicionar Cobrança</button>
+        <button type="submit" style="height: 40px; margin-bottom: 2px;">Adicionar</button>
     </form>
 </div>
 

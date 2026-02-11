@@ -3,29 +3,31 @@
 {% block content %}
 <div class="card">
     <h2>Registrar Nova Venda</h2>
-    <form method="POST">
+    <form method="POST"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
         <div>
             <label for="nome_cliente">Nome do Cliente</label>
-            <input type="text" name="nome_cliente" id="nome_cliente" required>
+            <input type="text" name="nome_cliente" id="nome_cliente" required style="width: 100%;">
         </div>
         <div>
             <label for="data_venda">Data da Venda</label>
-            <input type="date" name="data_venda" id="data_venda" required>
+            <input type="date" name="data_venda" id="data_venda" required style="width: 100%;">
             <script>document.getElementById('data_venda').valueAsDate = new Date();</script>
         </div>
         <div>
             <label for="tipo_venda">Tipo de Venda</label>
-            <select name="tipo_venda" id="tipo_venda" required>
+            <select name="tipo_venda" id="tipo_venda" required style="width: 100%;">
                 <option value="Talão">Talão de Energia (50%)</option>
                 <option value="Cartão">Cartão de Crédito (5%)</option>
-                <option value="PIX">PIX ((Valor/12)*0.20)</option>
+                <option value="PIX">PIX (20%)</option>
             </select>
         </div>
         <div>
-            <label for="valor_total">Valor Total da Venda (R$)</label>
-            <input type="number" step="0.01" name="valor_total" id="valor_total" placeholder="0,00" required>
+            <label for="valor_total">Valor Total (R$)</label>
+            <input type="number" step="0.01" name="valor_total" id="valor_total" placeholder="0,00" required
+                style="width: 100%;">
         </div>
-        <button type="submit">Adicionar Venda</button>
+        <button type="submit" style="height: 40px; margin-bottom: 2px;">Adicionar</button>
     </form>
 </div>
 

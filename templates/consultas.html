@@ -3,18 +3,21 @@
 {% block content %}
 <div class="card">
     <h2>Registrar Consulta Realizada</h2>
-    <form method="POST">
+    <form method="POST"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
         <div>
             <label for="nome_cliente">Nome do Cliente / Paciente</label>
-            <input type="text" name="nome_cliente" id="nome_cliente" required>
+            <input type="text" name="nome_cliente" id="nome_cliente" required style="width: 100%;">
         </div>
         <div>
             <label for="data_consulta">Data da Consulta</label>
-            <input type="date" name="data_consulta" id="data_consulta" required>
+            <input type="date" name="data_consulta" id="data_consulta" required style="width: 100%;">
             <script>document.getElementById('data_consulta').valueAsDate = new Date();</script>
         </div>
-        <p><strong>Comissão Fixa: R$ 20,00 por consulta.</strong></p>
-        <button type="submit">Registrar Consulta (+ R$ 20,00)</button>
+        <div style="display: flex; align-items: center; padding-bottom: 10px;">
+            <strong style="color: var(--primary-color);">+ R$ 20,00</strong>
+        </div>
+        <button type="submit" style="height: 40px; margin-bottom: 2px;">Adicionar</button>
         form>
 </div>
 

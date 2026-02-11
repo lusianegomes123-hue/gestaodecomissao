@@ -3,22 +3,26 @@
 {% block content %}
 <div class="card">
     <h2>Registrar Procedimento / Cirurgia</h2>
-    <form method="POST">
+    <form method="POST"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
         <div>
             <label for="nome_cliente">Nome do Cliente / Paciente</label>
-            <input type="text" name="nome_cliente" id="nome_cliente" required>
+            <input type="text" name="nome_cliente" id="nome_cliente" required style="width: 100%;">
         </div>
         <div>
             <label for="tipo_procedimento">Tipo de Procedimento</label>
-            <input type="text" name="tipo_procedimento" id="tipo_procedimento" value="Cirurgia" required>
+            <input type="text" name="tipo_procedimento" id="tipo_procedimento" value="Cirurgia" required
+                style="width: 100%;">
         </div>
         <div>
             <label for="data_procedimento">Data do Procedimento</label>
-            <input type="date" name="data_procedimento" id="data_procedimento" required>
+            <input type="date" name="data_procedimento" id="data_procedimento" required style="width: 100%;">
             <script>document.getElementById('data_procedimento').valueAsDate = new Date();</script>
         </div>
-        <p><strong>Comissão Fixa: R$ 200,00 por procedimento.</strong></p>
-        <button type="submit">Adicionar Procedimento</button>
+        <div style="display: flex; align-items: center; padding-bottom: 10px;">
+            <strong style="color: var(--primary-color);">+ R$ 200,00</strong>
+        </div>
+        <button type="submit" style="height: 40px; margin-bottom: 2px;">Adicionar</button>
     </form>
 </div>
 
