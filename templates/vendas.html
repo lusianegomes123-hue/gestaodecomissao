@@ -9,6 +9,11 @@
             <input type="text" name="nome_cliente" id="nome_cliente" required>
         </div>
         <div>
+            <label for="data_venda">Data da Venda</label>
+            <input type="date" name="data_venda" id="data_venda" required>
+            <script>document.getElementById('data_venda').valueAsDate = new Date();</script>
+        </div>
+        <div>
             <label for="tipo_venda">Tipo de Venda</label>
             <select name="tipo_venda" id="tipo_venda" required>
                 <option value="Talão">Talão de Energia (50%)</option>
@@ -27,7 +32,11 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <h2>Minhas Vendas (Histórico Geral)</h2>
-        <h3>Total Comissão: R$ {{ "%.2f"|format(total_comissao)|replace('.', ',') }}</h3>
+        <div style="text-align: right;">
+            <p style="margin: 0; font-weight: bold;">Qtd: {{ total_qtd }}</p>
+            <h3 style="margin: 0; color: var(--primary-color);">Total: R$ {{ "%.2f"|format(total_comissao)|replace('.',
+                ',') }}</h3>
+        </div>
     </div>
     <table>
         <thead>
@@ -37,17 +46,25 @@
                 <th>Tipo</th>
                 <th>Valor Venda</th>
                 <th>Comissão</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
             {% for venda in vendas %}
             <tr>
-                <td>{{ venda.data_venda.strftime('%d/%m/%Y') }}</td>
+                <td>{{ venda.data_venda }}</td>
                 <td>{{ venda.nome_cliente }}</td>
                 <td>{{ venda.tipo_venda }}</td>
                 <td>R$ {{ "%.2f"|format(venda.valor_total)|replace('.', ',') }}</td>
                 <td style="font-weight: bold; color: var(--primary-color);">R$ {{
                     "%.2f"|format(venda.comissao_calculada)|replace('.', ',') }}</td>
+                <td>
+                    <a href="{{ url_for('edit_venda', id=venda.id) }}"
+                        style="text-decoration: none; font-size: 1.2rem; margin-right: 10px;" title="Editar">✏️</a>
+                    <a href="{{ url_for('delete_venda', id=venda.id) }}"
+                        onclick="return confirm('Tem certeza que deseja excluir esta venda?')"
+                        style="text-decoration: none; font-size: 1.2rem;" title="Excluir">🗑️</a>
+                </td>
             </tr>
             {% else %}
             <tr>

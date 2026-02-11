@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Editar Procedimento</h2>
+    <form method="POST">
+        <div>
+            <label for="nome_cliente">Nome do Cliente / Paciente</label>
+            <input type="text" name="nome_cliente" id="nome_cliente" value="{{ item.nome_cliente }}" required>
+        </div>
+        <div>
+            <label for="data_procedimento">Data do Procedimento</label>
+            <input type="date" name="data_procedimento" id="data_procedimento" value="{{ item.data_procedimento }}"
+                required>
+        </div>
+        <div>
+            <label for="tipo_procedimento">Tipo de Procedimento</label>
+            <input type="text" name="tipo_procedimento" id="tipo_procedimento" value="{{ item.tipo_procedimento }}"
+                required>
+        </div>
+        <p><strong>Comissão Fixa: R$ 200,00 por procedimento.</strong></p>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button type="submit">Salvar Alterações</button>
+            <a href="{{ url_for('procedimentos') }}" class="button"
+                style="background-color: #ccc; text-decoration: none; padding: 10px 20px; border-radius: 4px; color: black; text-align: center;">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

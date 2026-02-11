@@ -118,7 +118,18 @@ def logout():
 @login_required
 def home():
     agora = datetime.now()
-    return render_template('home.html', agora=agora)
+    mes_atual = agora.month
+    ano_atual = agora.year
+
+    # Calcular Total do Mês Atual
+    t_vendas = db.session.query(func.sum(Vendas.comissao_calculada)).filter_by(user_id=current_user.id).filter(extract('month', Vendas.data_venda) == mes_atual, extract('year', Vendas.data_venda) == ano_atual).scalar() or 0
+    t_cobrancas = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter_by(user_id=current_user.id).filter(extract('month', Cobrancas.data_negociacao) == mes_atual, extract('year', Cobrancas.data_negociacao) == ano_atual).scalar() or 0
+    t_consultas = db.session.query(func.sum(Consultas.comissao_calculada)).filter_by(user_id=current_user.id).filter(extract('month', Consultas.data_consulta) == mes_atual, extract('year', Consultas.data_consulta) == ano_atual).scalar() or 0
+    t_procedimentos = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).filter(extract('month', Procedimentos.data_procedimento) == mes_atual, extract('year', Procedimentos.data_procedimento) == ano_atual).scalar() or 0
+    
+    total_mes_atual = t_vendas + t_cobrancas + t_consultas + t_procedimentos
+
+    return render_template('home.html', agora=agora, total_mes_atual=total_mes_atual)
 
 @app.route('/geral')
 @login_required
@@ -129,6 +140,20 @@ def relatorios():
     tcs = db.session.query(func.sum(Consultas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
     tp = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
     total_acumulado_geral = tv + tcb + tcs + tp
+
+    # Contagens Gerais
+    qv = Vendas.query.filter_by(user_id=current_user.id).count()
+    qcb = Cobrancas.query.filter_by(user_id=current_user.id).count()
+    qcs = Consultas.query.filter_by(user_id=current_user.id).count()
+    qp = Procedimentos.query.filter_by(user_id=current_user.id).count()
+    total_itens_geral = qv + qcb + qcs + qp
+    
+    resumo_geral = {
+        'vendas': {'qtd': qv, 'val': tv},
+        'cobrancas': {'qtd': qcb, 'val': tcb},
+        'consultas': {'qtd': qcs, 'val': tcs},
+        'procedimentos': {'qtd': qp, 'val': tp}
+    }
 
     # 2. Agrupamento por Mês
     historico = defaultdict(float)
@@ -182,6 +207,8 @@ def relatorios():
 
     return render_template('relatorios.html', 
                            total_acumulado_geral=total_acumulado_geral,
+                           total_itens_geral=total_itens_geral,
+                           resumo_geral=resumo_geral,
                            lista_historico=lista_historico,
                            detalhes=detalhes,
                            filtro={'mes': mes_filtro, 'ano': ano_filtro, 'total': total_mes_selecionado})
@@ -193,17 +220,65 @@ def vendas():
         tipo = request.form.get('tipo_venda')
         valor = float(request.form.get('valor_total'))
         cliente = request.form.get('nome_cliente')
+        data_str = request.form.get('data_venda')
+        
+        data_venda = datetime.strptime(data_str, '%Y-%m-%d').date() if data_str else datetime.utcnow().date()
+
         comissao = 0
         if tipo == 'Talão': comissao = valor * 0.50
         elif tipo == 'Cartão': comissao = valor * 0.05
         elif tipo == 'PIX': comissao = (valor / 12) * 0.20
-        nova = Vendas(user_id=current_user.id, nome_cliente=cliente, tipo_venda=tipo, valor_total=valor, comissao_calculada=comissao)
+        
+        nova = Vendas(user_id=current_user.id, nome_cliente=cliente, tipo_venda=tipo, valor_total=valor, comissao_calculada=comissao, data_venda=data_venda)
         db.session.add(nova)
         db.session.commit()
         return redirect(url_for('vendas'))
+    
     lista = Vendas.query.filter_by(user_id=current_user.id).order_by(Vendas.data_venda.desc()).all()
-    total = db.session.query(func.sum(Vendas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    return render_template('vendas.html', vendas=lista, total_comissao=total)
+    total_val = db.session.query(func.sum(Vendas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
+    total_qtd = Vendas.query.filter_by(user_id=current_user.id).count()
+    
+    return render_template('vendas.html', vendas=lista, total_comissao=total_val, total_qtd=total_qtd)
+
+@app.route('/vendas/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_venda(id):
+    venda = Vendas.query.get_or_404(id)
+    if venda.user_id != current_user.id:
+        flash('Acesso negado.')
+        return redirect(url_for('vendas'))
+
+    if request.method == 'POST':
+        venda.nome_cliente = request.form.get('nome_cliente')
+        venda.tipo_venda = request.form.get('tipo_venda')
+        venda.valor_total = float(request.form.get('valor_total'))
+        data_str = request.form.get('data_venda')
+        if data_str:
+            venda.data_venda = datetime.strptime(data_str, '%Y-%m-%d').date()
+
+        # Recalcular comissão
+        if venda.tipo_venda == 'Talão': venda.comissao_calculada = venda.valor_total * 0.50
+        elif venda.tipo_venda == 'Cartão': venda.comissao_calculada = venda.valor_total * 0.05
+        elif venda.tipo_venda == 'PIX': venda.comissao_calculada = (venda.valor_total / 12) * 0.20
+        
+        db.session.commit()
+        flash('Venda atualizada com sucesso!')
+        return redirect(url_for('vendas'))
+    
+    return render_template('edit_venda.html', venda=venda)
+
+@app.route('/vendas/delete/<int:id>')
+@login_required
+def delete_venda(id):
+    venda = Vendas.query.get_or_404(id)
+    if venda.user_id != current_user.id:
+        flash('Acesso negado.')
+        return redirect(url_for('vendas'))
+    
+    db.session.delete(venda)
+    db.session.commit()
+    flash('Venda excluída com sucesso!')
+    return redirect(url_for('vendas'))
 
 @app.route('/cobrancas', methods=['GET', 'POST'])
 @login_required
@@ -211,27 +286,113 @@ def cobrancas():
     if request.method == 'POST':
         valor = float(request.form.get('valor_negociado'))
         cliente = request.form.get('nome_cliente')
+        data_str = request.form.get('data_negociacao')
+        
+        data_negoc = datetime.strptime(data_str, '%Y-%m-%d').date() if data_str else datetime.utcnow().date()
+
         comissao = valor * 0.03
-        nova = Cobrancas(user_id=current_user.id, nome_cliente=cliente, valor_negociado=valor, comissao_calculada=comissao)
+        nova = Cobrancas(user_id=current_user.id, nome_cliente=cliente, valor_negociado=valor, comissao_calculada=comissao, data_negociacao=data_negoc)
         db.session.add(nova)
         db.session.commit()
         return redirect(url_for('cobrancas'))
+    
     lista = Cobrancas.query.filter_by(user_id=current_user.id).order_by(Cobrancas.data_negociacao.desc()).all()
-    total = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    return render_template('cobrancas.html', cobrancas=lista, total_comissao=total)
+    total_val = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
+    total_qtd = Cobrancas.query.filter_by(user_id=current_user.id).count()
+
+    return render_template('cobrancas.html', cobrancas=lista, total_comissao=total_val, total_qtd=total_qtd)
+
+@app.route('/cobrancas/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_cobranca(id):
+    item = Cobrancas.query.get_or_404(id)
+    if item.user_id != current_user.id:
+        flash('Acesso negado.')
+        return redirect(url_for('cobrancas'))
+
+    if request.method == 'POST':
+        item.nome_cliente = request.form.get('nome_cliente')
+        item.valor_negociado = float(request.form.get('valor_negociado'))
+        data_str = request.form.get('data_negociacao')
+        if data_str:
+            item.data_negociacao = datetime.strptime(data_str, '%Y-%m-%d').date()
+
+        # Recalcular
+        item.comissao_calculada = item.valor_negociado * 0.03
+        
+        db.session.commit()
+        flash('Cobrança atualizada com sucesso!')
+        return redirect(url_for('cobrancas'))
+    
+    return render_template('edit_cobranca.html', item=item)
+
+@app.route('/cobrancas/delete/<int:id>')
+@login_required
+def delete_cobranca(id):
+    item = Cobrancas.query.get_or_404(id)
+    if item.user_id != current_user.id:
+        flash('Acesso negado.')
+        return redirect(url_for('cobrancas'))
+    
+    db.session.delete(item)
+    db.session.commit()
+    flash('Cobrança excluída com sucesso!')
+    return redirect(url_for('cobrancas'))
 
 @app.route('/consultas', methods=['GET', 'POST'])
 @login_required
 def consultas():
     if request.method == 'POST':
         cliente = request.form.get('nome_cliente')
-        nova = Consultas(user_id=current_user.id, nome_cliente=cliente, status='Realizada', comissao_calculada=20.00)
+        data_str = request.form.get('data_consulta')
+        
+        data_cons = datetime.strptime(data_str, '%Y-%m-%d').date() if data_str else datetime.utcnow().date()
+
+        nova = Consultas(user_id=current_user.id, nome_cliente=cliente, status='Realizada', comissao_calculada=20.00, data_consulta=data_cons)
         db.session.add(nova)
         db.session.commit()
         return redirect(url_for('consultas'))
+    
     lista = Consultas.query.filter_by(user_id=current_user.id).order_by(Consultas.data_consulta.desc()).all()
-    total = db.session.query(func.sum(Consultas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    return render_template('consultas.html', consultas=lista, total_comissao=total)
+    total_val = db.session.query(func.sum(Consultas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
+    total_qtd = Consultas.query.filter_by(user_id=current_user.id).count()
+
+    return render_template('consultas.html', consultas=lista, total_comissao=total_val, total_qtd=total_qtd)
+
+@app.route('/consultas/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_consulta(id):
+    item = Consultas.query.get_or_404(id)
+    if item.user_id != current_user.id:
+        flash('Acesso negado.')
+        return redirect(url_for('consultas'))
+
+    if request.method == 'POST':
+        item.nome_cliente = request.form.get('nome_cliente')
+        data_str = request.form.get('data_consulta')
+        if data_str:
+            item.data_consulta = datetime.strptime(data_str, '%Y-%m-%d').date()
+
+        # Comissão fixa, não precisa recalcular se não mudar a regra
+        
+        db.session.commit()
+        flash('Consulta atualizada com sucesso!')
+        return redirect(url_for('consultas'))
+    
+    return render_template('edit_consulta.html', item=item)
+
+@app.route('/consultas/delete/<int:id>')
+@login_required
+def delete_consulta(id):
+    item = Consultas.query.get_or_404(id)
+    if item.user_id != current_user.id:
+        flash('Acesso negado.')
+        return redirect(url_for('consultas'))
+    
+    db.session.delete(item)
+    db.session.commit()
+    flash('Consulta excluída com sucesso!')
+    return redirect(url_for('consultas'))
 
 @app.route('/procedimentos', methods=['GET', 'POST'])
 @login_required
@@ -239,13 +400,56 @@ def procedimentos():
     if request.method == 'POST':
         tipo = request.form.get('tipo_procedimento')
         cliente = request.form.get('nome_cliente')
-        nova = Procedimentos(user_id=current_user.id, nome_cliente=cliente, tipo_procedimento=tipo, comissao_calculada=200.00)
+        data_str = request.form.get('data_procedimento')
+        
+        data_proc = datetime.strptime(data_str, '%Y-%m-%d').date() if data_str else datetime.utcnow().date()
+        
+        nova = Procedimentos(user_id=current_user.id, nome_cliente=cliente, tipo_procedimento=tipo, comissao_calculada=200.00, data_procedimento=data_proc)
         db.session.add(nova)
         db.session.commit()
         return redirect(url_for('procedimentos'))
+    
     lista = Procedimentos.query.filter_by(user_id=current_user.id).order_by(Procedimentos.data_procedimento.desc()).all()
-    total = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    return render_template('procedimentos.html', procedimentos=lista, total_comissao=total)
+    total_val = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
+    total_qtd = Procedimentos.query.filter_by(user_id=current_user.id).count()
+
+    return render_template('procedimentos.html', procedimentos=lista, total_comissao=total_val, total_qtd=total_qtd)
+
+@app.route('/procedimentos/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_procedimento(id):
+    item = Procedimentos.query.get_or_404(id)
+    if item.user_id != current_user.id:
+        flash('Acesso negado.')
+        return redirect(url_for('procedimentos'))
+
+    if request.method == 'POST':
+        item.nome_cliente = request.form.get('nome_cliente')
+        item.tipo_procedimento = request.form.get('tipo_procedimento')
+        data_str = request.form.get('data_procedimento')
+        if data_str:
+            item.data_procedimento = datetime.strptime(data_str, '%Y-%m-%d').date()
+
+        # Comissão fixa
+        
+        db.session.commit()
+        flash('Procedimento atualizado com sucesso!')
+        return redirect(url_for('procedimentos'))
+    
+    return render_template('edit_procedimento.html', item=item)
+
+@app.route('/procedimentos/delete/<int:id>')
+@login_required
+def delete_procedimento(id):
+    item = Procedimentos.query.get_or_404(id)
+    if item.user_id != current_user.id:
+        flash('Acesso negado.')
+        return redirect(url_for('procedimentos'))
+    
+    db.session.delete(item)
+    db.session.commit()
+    flash('Procedimento excluído com sucesso!')
+    return redirect(url_for('procedimentos'))
 
 @app.route('/admin/users')
 @login_required
@@ -265,15 +469,15 @@ if __name__ == '__main__':
     port = 5003
     
     # Tenta abrir o túnel Ngrok (Link Público)
-    try:
-        # Garante que o Ngrok use o protocolo HTTP (que gera https gratuito)
-        public_url = ngrok.connect(port, "http").public_url
-        print("\n" + "="*60)
-        print(f" 🚀 ACESSE SEU APP AQUI (EXTERNO): {public_url}")
-        print("="*60 + "\n")
-    except Exception as e:
-        print(f"\n[!] Aviso: Não foi possível gerar Link Público Ngrok. Erro: {e}")
-        print("    (Verifique sua conexão de internet)\n")
+    # try:
+    #     # Garante que o Ngrok use o protocolo HTTP (que gera https gratuito)
+    #     public_url = ngrok.connect(port, "http").public_url
+    #     print("\n" + "="*60)
+    #     print(f" 🚀 ACESSE SEU APP AQUI (EXTERNO): {public_url}")
+    #     print("="*60 + "\n")
+    # except Exception as e:
+    #     print(f"\n[!] Aviso: Não foi possível gerar Link Público Ngrok. Erro: {e}")
+    #     print("    (Verifique sua conexão de internet)\n")
 
     print(f" 🏠 ACESSE SEU APP AQUI (LOCAL):   http://127.0.0.1:{port}\n")
 

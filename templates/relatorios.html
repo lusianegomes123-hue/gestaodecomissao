@@ -3,11 +3,47 @@
 {% block content %}
 
 <!-- 1. Total Geral Acumulado -->
-<div class="total-geral-highlight" style="background: linear-gradient(135deg, #003366 0%, #001a33 100%);">
-    <h2 style="color: #66A3FF; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px;">Total Geral Acumulado
-        (Todos os tempos)</h2>
-    <div class="value" style="color: white; font-size: 3.5rem;">R$ {{ "%.2f"|format(total_acumulado_geral)|replace('.',
-        ',') }}</div>
+<!-- 1. Total Geral Acumulado (Cards) -->
+<div style="margin-bottom: 2rem;">
+    <div class="total-geral-highlight"
+        style="background: linear-gradient(135deg, #003366 0%, #001a33 100%); margin-bottom: 1rem;">
+        <h2 style="color: #66A3FF; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px;">Total Geral
+            Acumulado (Todos os tempos)</h2>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div class="value" style="color: white; font-size: 3.5rem;">R$ {{
+                "%.2f"|format(total_acumulado_geral)|replace('.', ',') }}</div>
+            <div style="color: #ccc; font-size: 1.2rem; margin-bottom: 10px;">{{ total_itens_geral }} Itens Registrados
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards de Resumo por Categoria -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div class="card" style="padding: 1rem; border-left: 5px solid #28a745;">
+            <h4 style="margin: 0; color: #555;">Vendas</h4>
+            <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">{{ resumo_geral['vendas']['qtd'] }}</div>
+            <div style="color: #888;">R$ {{ "%.2f"|format(resumo_geral['vendas']['val'])|replace('.', ',') }}</div>
+        </div>
+        <div class="card" style="padding: 1rem; border-left: 5px solid #dc3545;">
+            <h4 style="margin: 0; color: #555;">Cobranças</h4>
+            <div style="font-size: 1.5rem; font-weight: bold; color: #dc3545;">{{ resumo_geral['cobrancas']['qtd'] }}
+            </div>
+            <div style="color: #888;">R$ {{ "%.2f"|format(resumo_geral['cobrancas']['val'])|replace('.', ',') }}</div>
+        </div>
+        <div class="card" style="padding: 1rem; border-left: 5px solid #ffc107;">
+            <h4 style="margin: 0; color: #555;">Consultas</h4>
+            <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">{{ resumo_geral['consultas']['qtd'] }}
+            </div>
+            <div style="color: #888;">R$ {{ "%.2f"|format(resumo_geral['consultas']['val'])|replace('.', ',') }}</div>
+        </div>
+        <div class="card" style="padding: 1rem; border-left: 5px solid #17a2b8;">
+            <h4 style="margin: 0; color: #555;">Procedimentos</h4>
+            <div style="font-size: 1.5rem; font-weight: bold; color: #17a2b8;">{{ resumo_geral['procedimentos']['qtd']
+                }}</div>
+            <div style="color: #888;">R$ {{ "%.2f"|format(resumo_geral['procedimentos']['val'])|replace('.', ',') }}
+            </div>
+        </div>
+    </div>
 </div>
 
 <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
@@ -65,7 +101,7 @@
             <tbody>
                 {% for v in detalhes['vendas'] %}
                 <tr>
-                    <td>{{ v.data_venda.strftime('%d/%m') }}</td>
+                    <td>{{ v.data_venda }}</td>
                     <td>{{ v.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(v.comissao_calculada)|replace('.', ',') }}</td>
                 </tr>
@@ -89,7 +125,7 @@
             <tbody>
                 {% for c in detalhes['cobrancas'] %}
                 <tr>
-                    <td>{{ c.data_negociacao.strftime('%d/%m') }}</td>
+                    <td>{{ c.data_negociacao }}</td>
                     <td>{{ c.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(c.comissao_calculada)|replace('.', ',') }}</td>
                 </tr>
@@ -113,7 +149,7 @@
             <tbody>
                 {% for c in detalhes['consultas'] %}
                 <tr>
-                    <td>{{ c.data_consulta.strftime('%d/%m') }}</td>
+                    <td>{{ c.data_consulta }}</td>
                     <td>{{ c.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(c.comissao_calculada)|replace('.', ',') }}</td>
                 </tr>
@@ -137,7 +173,7 @@
             <tbody>
                 {% for p in detalhes['procedimentos'] %}
                 <tr>
-                    <td>{{ p.data_procedimento.strftime('%d/%m') }}</td>
+                    <td>{{ p.data_procedimento }}</td>
                     <td>{{ p.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(p.comissao_calculada)|replace('.', ',') }}</td>
                 </tr>

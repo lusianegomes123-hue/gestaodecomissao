@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Editar Venda</h2>
+    <form method="POST">
+        <div>
+            <label for="nome_cliente">Nome do Cliente</label>
+            <input type="text" name="nome_cliente" id="nome_cliente" value="{{ venda.nome_cliente }}" required>
+        </div>
+        <div>
+            <label for="data_venda">Data da Venda</label>
+            <input type="date" name="data_venda" id="data_venda" value="{{ venda.data_venda }}" required>
+        </div>
+        <div>
+            <label for="tipo_venda">Tipo de Venda</label>
+            <select name="tipo_venda" id="tipo_venda" required>
+                <option value="Talão" {% if venda.tipo_venda=='Talão' %}selected{% endif %}>Talão de Energia (50%)
+                </option>
+                <option value="Cartão" {% if venda.tipo_venda=='Cartão' %}selected{% endif %}>Cartão de Crédito (5%)
+                </option>
+                <option value="PIX" {% if venda.tipo_venda=='PIX' %}selected{% endif %}>PIX ((Valor/12)*0.20)</option>
+            </select>
+        </div>
+        <div>
+            <label for="valor_total">Valor Total da Venda (R$)</label>
+            <input type="number" step="0.01" name="valor_total" id="valor_total" value="{{ venda.valor_total }}"
+                required>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button type="submit">Salvar Alterações</button>
+            <a href="{{ url_for('vendas') }}" class="button"
+                style="background-color: #ccc; text-decoration: none; padding: 10px 20px; border-radius: 4px; color: black; text-align: center;">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
