@@ -141,6 +141,10 @@ def relatorios():
     tp = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
     total_acumulado_geral = tv + tcb + tcs + tp
 
+    # Totais Brutos (Volume Transacionado) - Onde aplicável
+    tv_bruto = db.session.query(func.sum(Vendas.valor_total)).filter_by(user_id=current_user.id).scalar() or 0
+    tcb_bruto = db.session.query(func.sum(Cobrancas.valor_negociado)).filter_by(user_id=current_user.id).scalar() or 0
+
     # Contagens Gerais
     qv = Vendas.query.filter_by(user_id=current_user.id).count()
     qcb = Cobrancas.query.filter_by(user_id=current_user.id).count()
@@ -149,10 +153,10 @@ def relatorios():
     total_itens_geral = qv + qcb + qcs + qp
     
     resumo_geral = {
-        'vendas': {'qtd': qv, 'val': tv},
-        'cobrancas': {'qtd': qcb, 'val': tcb},
-        'consultas': {'qtd': qcs, 'val': tcs},
-        'procedimentos': {'qtd': qp, 'val': tp}
+        'vendas': {'qtd': qv, 'val': tv, 'bruto': tv_bruto},
+        'cobrancas': {'qtd': qcb, 'val': tcb, 'bruto': tcb_bruto},
+        'consultas': {'qtd': qcs, 'val': tcs, 'bruto': 0},
+        'procedimentos': {'qtd': qp, 'val': tp, 'bruto': 0}
     }
 
     # 2. Agrupamento por Mês
@@ -236,9 +240,10 @@ def vendas():
     
     lista = Vendas.query.filter_by(user_id=current_user.id).order_by(Vendas.data_venda.desc()).all()
     total_val = db.session.query(func.sum(Vendas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
+    total_bruto = db.session.query(func.sum(Vendas.valor_total)).filter_by(user_id=current_user.id).scalar() or 0
     total_qtd = Vendas.query.filter_by(user_id=current_user.id).count()
     
-    return render_template('vendas.html', vendas=lista, total_comissao=total_val, total_qtd=total_qtd)
+    return render_template('vendas.html', vendas=lista, total_comissao=total_val, total_qtd=total_qtd, total_bruto=total_bruto)
 
 @app.route('/vendas/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -298,9 +303,10 @@ def cobrancas():
     
     lista = Cobrancas.query.filter_by(user_id=current_user.id).order_by(Cobrancas.data_negociacao.desc()).all()
     total_val = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
+    total_bruto = db.session.query(func.sum(Cobrancas.valor_negociado)).filter_by(user_id=current_user.id).scalar() or 0
     total_qtd = Cobrancas.query.filter_by(user_id=current_user.id).count()
 
-    return render_template('cobrancas.html', cobrancas=lista, total_comissao=total_val, total_qtd=total_qtd)
+    return render_template('cobrancas.html', cobrancas=lista, total_comissao=total_val, total_qtd=total_qtd, total_bruto=total_bruto)
 
 @app.route('/cobrancas/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
