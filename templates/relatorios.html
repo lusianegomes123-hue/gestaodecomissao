@@ -105,6 +105,7 @@
             <thead>
                 <tr>
                     <th>Data</th>
+                    <th>Atendente</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
                 </tr>
@@ -113,6 +114,7 @@
                 {% for v in detalhes['vendas'] %}
                 <tr>
                     <td>{{ v.data_venda }}</td>
+                    <td>{{ user_dict.get(v.user_id, 'Desconhecido') }}</td>
                     <td>{{ v.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(v.comissao_calculada)|replace('.', ',') }}</td>
                 </tr>
@@ -129,6 +131,7 @@
             <thead>
                 <tr>
                     <th>Data</th>
+                    <th>Atendente</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
                 </tr>
@@ -137,6 +140,7 @@
                 {% for c in detalhes['cobrancas'] %}
                 <tr>
                     <td>{{ c.data_negociacao }}</td>
+                    <td>{{ user_dict.get(c.user_id, 'Desconhecido') }}</td>
                     <td>{{ c.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(c.comissao_calculada)|replace('.', ',') }}</td>
                 </tr>
@@ -153,6 +157,7 @@
             <thead>
                 <tr>
                     <th>Data</th>
+                    <th>Atendente</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
                 </tr>
@@ -161,6 +166,7 @@
                 {% for c in detalhes['consultas'] %}
                 <tr>
                     <td>{{ c.data_consulta }}</td>
+                    <td>{{ user_dict.get(c.user_id, 'Desconhecido') }}</td>
                     <td>{{ c.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(c.comissao_calculada)|replace('.', ',') }}</td>
                 </tr>
@@ -177,6 +183,7 @@
             <thead>
                 <tr>
                     <th>Data</th>
+                    <th>Atendente</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
                 </tr>
@@ -185,6 +192,7 @@
                 {% for p in detalhes['procedimentos'] %}
                 <tr>
                     <td>{{ p.data_procedimento }}</td>
+                    <td>{{ user_dict.get(p.user_id, 'Desconhecido') }}</td>
                     <td>{{ p.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(p.comissao_calculada)|replace('.', ',') }}</td>
                 </tr>

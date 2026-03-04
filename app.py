@@ -140,22 +140,45 @@ def home():
 @app.route('/geral')
 @login_required
 def relatorios():
+    is_admin = current_user.full_name.strip().lower() == "lusiane gomes simão"
+
+    def base_query(model):
+        q = model.query
+        if not is_admin:
+            q = q.filter_by(user_id=current_user.id)
+        return q
+
+    def sum_query(sum_col):
+        q = db.session.query(func.sum(sum_col))
+        if not is_admin:
+            # Need to join with model to filter by user_id
+            # Or simpler: we can't always just filter_by on scalar without the entity.
+            # Actually, query(func.sum(model.comissao_calculada)).filter(model.user_id == current_user.id)
+            pass
+        return q
+        
+    def get_sum(model, col):
+        q = db.session.query(func.sum(col))
+        if not is_admin:
+            q = q.filter(model.user_id == current_user.id)
+        return q.scalar() or 0
+
     # 1. Total Geral Acumulado
-    tv = db.session.query(func.sum(Vendas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    tcb = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    tcs = db.session.query(func.sum(Consultas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    tp = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
+    tv = get_sum(Vendas, Vendas.comissao_calculada)
+    tcb = get_sum(Cobrancas, Cobrancas.comissao_calculada)
+    tcs = get_sum(Consultas, Consultas.comissao_calculada)
+    tp = get_sum(Procedimentos, Procedimentos.comissao_calculada)
     total_acumulado_geral = tv + tcb + tcs + tp
 
     # Totais Brutos (Volume Transacionado) - Onde aplicável
-    tv_bruto = db.session.query(func.sum(Vendas.valor_total)).filter_by(user_id=current_user.id).scalar() or 0
-    tcb_bruto = db.session.query(func.sum(Cobrancas.valor_negociado)).filter_by(user_id=current_user.id).scalar() or 0
+    tv_bruto = get_sum(Vendas, Vendas.valor_total)
+    tcb_bruto = get_sum(Cobrancas, Cobrancas.valor_negociado)
 
     # Contagens Gerais
-    qv = Vendas.query.filter_by(user_id=current_user.id).count()
-    qcb = Cobrancas.query.filter_by(user_id=current_user.id).count()
-    qcs = Consultas.query.filter_by(user_id=current_user.id).count()
-    qp = Procedimentos.query.filter_by(user_id=current_user.id).count()
+    qv = base_query(Vendas).count()
+    qcb = base_query(Cobrancas).count()
+    qcs = base_query(Consultas).count()
+    qp = base_query(Procedimentos).count()
     total_itens_geral = qv + qcb + qcs + qp
     
     resumo_geral = {
@@ -167,7 +190,10 @@ def relatorios():
 
     historico = defaultdict(float)
     def agregar(model, date_col):
-        results = db.session.query(date_col, model.comissao_calculada).filter_by(user_id=current_user.id).all()
+        q = db.session.query(date_col, model.comissao_calculada)
+        if not is_admin:
+            q = q.filter(model.user_id == current_user.id)
+        results = q.all()
         for dt, valor in results:
             if dt:
                 historico[f"{dt.year:04d}-{dt.month:02d}"] += float(valor)
@@ -211,13 +237,15 @@ def relatorios():
     fim_filtro = datetime(ano_filtro, mes_filtro, last_day).date()
 
     detalhes = {
-        'vendas': Vendas.query.filter_by(user_id=current_user.id).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro).all(),
-        'cobrancas': Cobrancas.query.filter_by(user_id=current_user.id).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro).all(),
-        'consultas': Consultas.query.filter_by(user_id=current_user.id).filter(Consultas.data_consulta >= inicio_filtro, Consultas.data_consulta <= fim_filtro).all(),
-        'procedimentos': Procedimentos.query.filter_by(user_id=current_user.id).filter(Procedimentos.data_procedimento >= inicio_filtro, Procedimentos.data_procedimento <= fim_filtro).all(),
+        'vendas': base_query(Vendas).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro).all(),
+        'cobrancas': base_query(Cobrancas).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro).all(),
+        'consultas': base_query(Consultas).filter(Consultas.data_consulta >= inicio_filtro, Consultas.data_consulta <= fim_filtro).all(),
+        'procedimentos': base_query(Procedimentos).filter(Procedimentos.data_procedimento >= inicio_filtro, Procedimentos.data_procedimento <= fim_filtro).all(),
     }
     
     total_mes_selecionado = historico.get(f"{ano_filtro:04d}-{mes_filtro:02d}", 0.0)
+
+    user_dict = {u.id: u.full_name for u in User.query.all()}
 
     return render_template('relatorios.html', 
                            total_acumulado_geral=total_acumulado_geral,
@@ -225,7 +253,8 @@ def relatorios():
                            resumo_geral=resumo_geral,
                            lista_historico=lista_historico,
                            detalhes=detalhes,
-                           filtro={'mes': mes_filtro, 'ano': ano_filtro, 'total': total_mes_selecionado})
+                           filtro={'mes': mes_filtro, 'ano': ano_filtro, 'total': total_mes_selecionado},
+                           user_dict=user_dict)
 
 @app.route('/vendas', methods=['GET', 'POST'])
 @login_required
