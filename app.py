@@ -165,27 +165,12 @@ def relatorios():
         'procedimentos': {'qtd': qp, 'val': tp, 'bruto': 0}
     }
 
-    # 2. Agrupamento por Mês
     historico = defaultdict(float)
     def agregar(model, date_col):
-        # Compatibilidade segura com SQLite (via strftime '%Y-%m') e Postgres via func.to_char ou alternativo se falhar
-        engine_name = db.engine.name
-        if engine_name == 'sqlite':
-            results = db.session.query(
-                func.strftime('%Y-%m', date_col).label('mes_ano'),
-                func.sum(model.comissao_calculada)
-            ).filter_by(user_id=current_user.id).group_by(func.strftime('%Y-%m', date_col)).all()
-            for ma, valor in results:
-                if ma:
-                    historico[ma] += float(valor)
-        else: # postgresql
-            results = db.session.query(
-                func.to_char(date_col, 'YYYY-MM').label('mes_ano'),
-                func.sum(model.comissao_calculada)
-            ).filter_by(user_id=current_user.id).group_by(func.to_char(date_col, 'YYYY-MM')).all()
-            for ma, valor in results:
-                if ma:
-                    historico[ma] += float(valor)
+        results = db.session.query(date_col, model.comissao_calculada).filter_by(user_id=current_user.id).all()
+        for dt, valor in results:
+            if dt:
+                historico[f"{dt.year:04d}-{dt.month:02d}"] += float(valor)
 
     agregar(Vendas, Vendas.data_venda)
     agregar(Cobrancas, Cobrancas.data_negociacao)
