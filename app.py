@@ -255,10 +255,18 @@ def vendas():
         db.session.commit()
         return redirect(url_for('vendas'))
     
-    lista = Vendas.query.filter_by(user_id=current_user.id).order_by(Vendas.data_venda.desc()).all()
-    total_val = db.session.query(func.sum(Vendas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    total_bruto = db.session.query(func.sum(Vendas.valor_total)).filter_by(user_id=current_user.id).scalar() or 0
-    total_qtd = Vendas.query.filter_by(user_id=current_user.id).count()
+    agora = datetime.now()
+    mes_atual = agora.month
+    ano_atual = agora.year
+    
+    _, last_day = calendar.monthrange(ano_atual, mes_atual)
+    inicio_mes = datetime(ano_atual, mes_atual, 1).date()
+    fim_mes = datetime(ano_atual, mes_atual, last_day).date()
+
+    lista = Vendas.query.filter_by(user_id=current_user.id).filter(Vendas.data_venda >= inicio_mes, Vendas.data_venda <= fim_mes).order_by(Vendas.data_venda.desc()).all()
+    total_val = db.session.query(func.sum(Vendas.comissao_calculada)).filter_by(user_id=current_user.id).filter(Vendas.data_venda >= inicio_mes, Vendas.data_venda <= fim_mes).scalar() or 0
+    total_bruto = db.session.query(func.sum(Vendas.valor_total)).filter_by(user_id=current_user.id).filter(Vendas.data_venda >= inicio_mes, Vendas.data_venda <= fim_mes).scalar() or 0
+    total_qtd = Vendas.query.filter_by(user_id=current_user.id).filter(Vendas.data_venda >= inicio_mes, Vendas.data_venda <= fim_mes).count()
     
     return render_template('vendas.html', vendas=lista, total_comissao=total_val, total_qtd=total_qtd, total_bruto=total_bruto)
 
@@ -318,10 +326,18 @@ def cobrancas():
         db.session.commit()
         return redirect(url_for('cobrancas'))
     
-    lista = Cobrancas.query.filter_by(user_id=current_user.id).order_by(Cobrancas.data_negociacao.desc()).all()
-    total_val = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    total_bruto = db.session.query(func.sum(Cobrancas.valor_negociado)).filter_by(user_id=current_user.id).scalar() or 0
-    total_qtd = Cobrancas.query.filter_by(user_id=current_user.id).count()
+    agora = datetime.now()
+    mes_atual = agora.month
+    ano_atual = agora.year
+    
+    _, last_day = calendar.monthrange(ano_atual, mes_atual)
+    inicio_mes = datetime(ano_atual, mes_atual, 1).date()
+    fim_mes = datetime(ano_atual, mes_atual, last_day).date()
+
+    lista = Cobrancas.query.filter_by(user_id=current_user.id).filter(Cobrancas.data_negociacao >= inicio_mes, Cobrancas.data_negociacao <= fim_mes).order_by(Cobrancas.data_negociacao.desc()).all()
+    total_val = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter_by(user_id=current_user.id).filter(Cobrancas.data_negociacao >= inicio_mes, Cobrancas.data_negociacao <= fim_mes).scalar() or 0
+    total_bruto = db.session.query(func.sum(Cobrancas.valor_negociado)).filter_by(user_id=current_user.id).filter(Cobrancas.data_negociacao >= inicio_mes, Cobrancas.data_negociacao <= fim_mes).scalar() or 0
+    total_qtd = Cobrancas.query.filter_by(user_id=current_user.id).filter(Cobrancas.data_negociacao >= inicio_mes, Cobrancas.data_negociacao <= fim_mes).count()
 
     return render_template('cobrancas.html', cobrancas=lista, total_comissao=total_val, total_qtd=total_qtd, total_bruto=total_bruto)
 
@@ -376,9 +392,17 @@ def consultas():
         db.session.commit()
         return redirect(url_for('consultas'))
     
-    lista = Consultas.query.filter_by(user_id=current_user.id).order_by(Consultas.data_consulta.desc()).all()
-    total_val = db.session.query(func.sum(Consultas.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    total_qtd = Consultas.query.filter_by(user_id=current_user.id).count()
+    agora = datetime.now()
+    mes_atual = agora.month
+    ano_atual = agora.year
+    
+    _, last_day = calendar.monthrange(ano_atual, mes_atual)
+    inicio_mes = datetime(ano_atual, mes_atual, 1).date()
+    fim_mes = datetime(ano_atual, mes_atual, last_day).date()
+
+    lista = Consultas.query.filter_by(user_id=current_user.id).filter(Consultas.data_consulta >= inicio_mes, Consultas.data_consulta <= fim_mes).order_by(Consultas.data_consulta.desc()).all()
+    total_val = db.session.query(func.sum(Consultas.comissao_calculada)).filter_by(user_id=current_user.id).filter(Consultas.data_consulta >= inicio_mes, Consultas.data_consulta <= fim_mes).scalar() or 0
+    total_qtd = Consultas.query.filter_by(user_id=current_user.id).filter(Consultas.data_consulta >= inicio_mes, Consultas.data_consulta <= fim_mes).count()
 
     return render_template('consultas.html', consultas=lista, total_comissao=total_val, total_qtd=total_qtd)
 
@@ -432,9 +456,17 @@ def procedimentos():
         db.session.commit()
         return redirect(url_for('procedimentos'))
     
-    lista = Procedimentos.query.filter_by(user_id=current_user.id).order_by(Procedimentos.data_procedimento.desc()).all()
-    total_val = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).scalar() or 0
-    total_qtd = Procedimentos.query.filter_by(user_id=current_user.id).count()
+    agora = datetime.now()
+    mes_atual = agora.month
+    ano_atual = agora.year
+    
+    _, last_day = calendar.monthrange(ano_atual, mes_atual)
+    inicio_mes = datetime(ano_atual, mes_atual, 1).date()
+    fim_mes = datetime(ano_atual, mes_atual, last_day).date()
+
+    lista = Procedimentos.query.filter_by(user_id=current_user.id).filter(Procedimentos.data_procedimento >= inicio_mes, Procedimentos.data_procedimento <= fim_mes).order_by(Procedimentos.data_procedimento.desc()).all()
+    total_val = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).filter(Procedimentos.data_procedimento >= inicio_mes, Procedimentos.data_procedimento <= fim_mes).scalar() or 0
+    total_qtd = Procedimentos.query.filter_by(user_id=current_user.id).filter(Procedimentos.data_procedimento >= inicio_mes, Procedimentos.data_procedimento <= fim_mes).count()
 
     return render_template('procedimentos.html', procedimentos=lista, total_comissao=total_val, total_qtd=total_qtd)
 
