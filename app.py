@@ -5,6 +5,7 @@ from config import Config
 from models import db, User, Vendas, Cobrancas, Consultas, Procedimentos
 from datetime import datetime
 from collections import defaultdict
+import calendar
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -120,12 +121,17 @@ def home():
     agora = datetime.now()
     mes_atual = agora.month
     ano_atual = agora.year
+    
+    # Datas de início e fim do mês
+    _, last_day = calendar.monthrange(ano_atual, mes_atual)
+    inicio_mes = datetime(ano_atual, mes_atual, 1).date()
+    fim_mes = datetime(ano_atual, mes_atual, last_day).date()
 
     # Calcular Total do Mês Atual
-    t_vendas = db.session.query(func.sum(Vendas.comissao_calculada)).filter_by(user_id=current_user.id).filter(extract('month', Vendas.data_venda) == mes_atual, extract('year', Vendas.data_venda) == ano_atual).scalar() or 0
-    t_cobrancas = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter_by(user_id=current_user.id).filter(extract('month', Cobrancas.data_negociacao) == mes_atual, extract('year', Cobrancas.data_negociacao) == ano_atual).scalar() or 0
-    t_consultas = db.session.query(func.sum(Consultas.comissao_calculada)).filter_by(user_id=current_user.id).filter(extract('month', Consultas.data_consulta) == mes_atual, extract('year', Consultas.data_consulta) == ano_atual).scalar() or 0
-    t_procedimentos = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).filter(extract('month', Procedimentos.data_procedimento) == mes_atual, extract('year', Procedimentos.data_procedimento) == ano_atual).scalar() or 0
+    t_vendas = db.session.query(func.sum(Vendas.comissao_calculada)).filter_by(user_id=current_user.id).filter(Vendas.data_venda >= inicio_mes, Vendas.data_venda <= fim_mes).scalar() or 0
+    t_cobrancas = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter_by(user_id=current_user.id).filter(Cobrancas.data_negociacao >= inicio_mes, Cobrancas.data_negociacao <= fim_mes).scalar() or 0
+    t_consultas = db.session.query(func.sum(Consultas.comissao_calculada)).filter_by(user_id=current_user.id).filter(Consultas.data_consulta >= inicio_mes, Consultas.data_consulta <= fim_mes).scalar() or 0
+    t_procedimentos = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter_by(user_id=current_user.id).filter(Procedimentos.data_procedimento >= inicio_mes, Procedimentos.data_procedimento <= fim_mes).scalar() or 0
     
     total_mes_atual = t_vendas + t_cobrancas + t_consultas + t_procedimentos
 
@@ -162,17 +168,24 @@ def relatorios():
     # 2. Agrupamento por Mês
     historico = defaultdict(float)
     def agregar(model, date_col):
-        # Solução compatível com SQLite e PostgreSQL (evita func.strftime)
-        results = db.session.query(
-            extract('year', date_col).label('ano'),
-            extract('month', date_col).label('mes'),
-            func.sum(model.comissao_calculada)
-        ).filter_by(user_id=current_user.id).group_by(extract('year', date_col), extract('month', date_col)).all()
-        
-        for ano, mes, valor in results:
-            if ano and mes:
-                mes_ano = f"{int(ano)}-{int(mes):02d}"
-                historico[mes_ano] += float(valor)
+        # Compatibilidade segura com SQLite (via strftime '%Y-%m') e Postgres via func.to_char ou alternativo se falhar
+        engine_name = db.session.bind.dialect.name
+        if engine_name == 'sqlite':
+            results = db.session.query(
+                func.strftime('%Y-%m', date_col).label('mes_ano'),
+                func.sum(model.comissao_calculada)
+            ).filter_by(user_id=current_user.id).group_by(func.strftime('%Y-%m', date_col)).all()
+            for ma, valor in results:
+                if ma:
+                    historico[ma] += float(valor)
+        else: # postgresql
+            results = db.session.query(
+                func.to_char(date_col, 'YYYY-MM').label('mes_ano'),
+                func.sum(model.comissao_calculada)
+            ).filter_by(user_id=current_user.id).group_by(func.to_char(date_col, 'YYYY-MM')).all()
+            for ma, valor in results:
+                if ma:
+                    historico[ma] += float(valor)
 
     agregar(Vendas, Vendas.data_venda)
     agregar(Cobrancas, Cobrancas.data_negociacao)
@@ -200,11 +213,15 @@ def relatorios():
         mes_filtro = agora.month
         ano_filtro = agora.year
     
+    _, last_day = calendar.monthrange(ano_filtro, mes_filtro)
+    inicio_filtro = datetime(ano_filtro, mes_filtro, 1).date()
+    fim_filtro = datetime(ano_filtro, mes_filtro, last_day).date()
+
     detalhes = {
-        'vendas': Vendas.query.filter_by(user_id=current_user.id).filter(extract('month', Vendas.data_venda) == mes_filtro, extract('year', Vendas.data_venda) == ano_filtro).all(),
-        'cobrancas': Cobrancas.query.filter_by(user_id=current_user.id).filter(extract('month', Cobrancas.data_negociacao) == mes_filtro, extract('year', Cobrancas.data_negociacao) == ano_filtro).all(),
-        'consultas': Consultas.query.filter_by(user_id=current_user.id).filter(extract('month', Consultas.data_consulta) == mes_filtro, extract('year', Consultas.data_consulta) == ano_filtro).all(),
-        'procedimentos': Procedimentos.query.filter_by(user_id=current_user.id).filter(extract('month', Procedimentos.data_procedimento) == mes_filtro, extract('year', Procedimentos.data_procedimento) == ano_filtro).all(),
+        'vendas': Vendas.query.filter_by(user_id=current_user.id).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro).all(),
+        'cobrancas': Cobrancas.query.filter_by(user_id=current_user.id).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro).all(),
+        'consultas': Consultas.query.filter_by(user_id=current_user.id).filter(Consultas.data_consulta >= inicio_filtro, Consultas.data_consulta <= fim_filtro).all(),
+        'procedimentos': Procedimentos.query.filter_by(user_id=current_user.id).filter(Procedimentos.data_procedimento >= inicio_filtro, Procedimentos.data_procedimento <= fim_filtro).all(),
     }
     
     total_mes_selecionado = historico.get(f"{ano_filtro:04d}-{mes_filtro:02d}", 0.0)
