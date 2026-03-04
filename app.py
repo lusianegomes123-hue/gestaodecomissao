@@ -169,7 +169,7 @@ def relatorios():
     historico = defaultdict(float)
     def agregar(model, date_col):
         # Compatibilidade segura com SQLite (via strftime '%Y-%m') e Postgres via func.to_char ou alternativo se falhar
-        engine_name = db.session.bind.dialect.name
+        engine_name = db.engine.name
         if engine_name == 'sqlite':
             results = db.session.query(
                 func.strftime('%Y-%m', date_col).label('mes_ano'),
