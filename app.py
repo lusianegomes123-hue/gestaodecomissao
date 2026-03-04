@@ -193,10 +193,18 @@ def relatorios():
     # Filtro
     mes_filtro = request.args.get('mes', type=int)
     ano_filtro = request.args.get('ano', type=int)
+    
     if not mes_filtro or not ano_filtro:
         agora = datetime.now()
         mes_filtro = agora.month
         ano_filtro = agora.year
+        
+        # Inteligência UX: Se o mês atual não tem lançamentos, mas houver histórico passado
+        # abrir no último mês para que o usuário veja seus dados ao invés de uma tela vazia.
+        current_ym = f"{ano_filtro:04d}-{mes_filtro:02d}"
+        if current_ym not in historico and historico_ordenado:
+            ultimo_ano_mes = historico_ordenado[0][0]
+            ano_filtro, mes_filtro = map(int, ultimo_ano_mes.split('-'))
     
     _, last_day = calendar.monthrange(ano_filtro, mes_filtro)
     inicio_filtro = datetime(ano_filtro, mes_filtro, 1).date()
