@@ -23,6 +23,11 @@ def create_tables():
     app.before_request_funcs[None].remove(create_tables)
     db.create_all()
 
+import traceback
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return f"<pre>{traceback.format_exc()}</pre>", 500
+
 # --- Rotas de Autenticação ---
 
 @app.route('/login', methods=['GET', 'POST'])
