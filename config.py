@@ -9,5 +9,11 @@ class Config:
     
     # ATENÇÃO: Override de resgate de emergência para usar o DB que foi upado no github
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'comissoes_prod.db')
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'connect_args': {
+            'check_same_thread': False,
+            'timeout': 15
+        }
+    }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv('SECRET_KEY', 'chave_secreta_padrao_desenvolvimento')
