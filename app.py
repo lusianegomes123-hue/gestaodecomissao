@@ -261,6 +261,13 @@ def relatorios():
     }
     
     total_mes_selecionado = historico.get(f"{ano_filtro:04d}-{mes_filtro:02d}", 0.0)
+    
+    resumo_mes = {
+        'vendas': {'qtd': len(detalhes['vendas']), 'val': sum(v.comissao_calculada for v in detalhes['vendas']), 'bruto': sum(v.valor_total for v in detalhes['vendas'])},
+        'cobrancas': {'qtd': len(detalhes['cobrancas']), 'val': sum(c.comissao_calculada for c in detalhes['cobrancas']), 'bruto': sum(c.valor_negociado for c in detalhes['cobrancas'])},
+        'consultas': {'qtd': len(detalhes['consultas']), 'val': sum(c.comissao_calculada for c in detalhes['consultas']), 'bruto': 0},
+        'procedimentos': {'qtd': len(detalhes['procedimentos']), 'val': sum(p.comissao_calculada for p in detalhes['procedimentos']), 'bruto': 0}
+    }
 
     user_dict = {u.id: u.full_name for u in User.query.all()}
 
@@ -270,6 +277,7 @@ def relatorios():
                            resumo_geral=resumo_geral,
                            lista_historico=lista_historico,
                            detalhes=detalhes,
+                           resumo_mes=resumo_mes,
                            filtro={'mes': mes_filtro, 'ano': ano_filtro, 'total': total_mes_selecionado},
                            user_dict=user_dict)
 

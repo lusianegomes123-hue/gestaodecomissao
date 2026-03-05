@@ -3,60 +3,101 @@
 {% block content %}
 
 <!-- Destaque Principal: Mês Selecionado / Atual -->
-<div style="margin-bottom: 2rem;">
-    <div class="total-geral-highlight"
-        style="background: linear-gradient(135deg, #0055cc 0%, #003380 100%); margin-bottom: 1rem; border-left: 5px solid #66A3FF; padding: 2rem; border-radius: 8px;">
-        <h2 style="color: #cce0ff; text-transform: uppercase; font-size: 1.2rem; letter-spacing: 1px;">Total Acumulado
-            do Mês <small>({{ filtro.mes }}/{{ filtro.ano }})</small></h2>
-        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-            <div class="value" style="color: white; font-size: 3.5rem; font-weight: bold;">R$ {{
-                "%.2f"|format(filtro.total)|replace('.', ',') }}</div>
+<div style="margin-bottom: 2.5rem;">
+    <div
+        style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem; border-bottom: 2px solid #eaeaea; padding-bottom: 0.5rem;">
+        <h2 style="color: #333; margin: 0; font-size: 1.6rem;">Lançamentos do Mês <small
+                style="color: #777; font-weight: normal;">({{ filtro.mes }}/{{ filtro.ano }})</small></h2>
+        <h3 style="color: var(--primary-color); margin: 0; font-size: 1.6rem;">Total: R$ {{
+            "%.2f"|format(filtro.total)|replace('.', ',') }}</h3>
+    </div>
+
+    <!-- Cards de Resumo do Mês (Destaque Maior) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+        <div class="card"
+            style="padding: 1.5rem; border-left: 6px solid #28a745; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+            <h3 style="margin: 0 0 0.5rem 0; color: #444; font-size: 1.2rem;">Vendas <small
+                    style="font-weight: normal; color: #888;">({{ resumo_mes['vendas']['qtd'] }})</small></h3>
+            <div style="font-size: 1.3rem; font-weight: bold; color: #444;">Trans: R$ {{
+                "%.2f"|format(resumo_mes['vendas']['bruto'])|replace('.', ',') }}</div>
+            <div style="font-size: 1.1rem; color: #28a745; font-weight: 500; margin-top: 5px;">Com: R$ {{
+                "%.2f"|format(resumo_mes['vendas']['val'])|replace('.', ',') }}</div>
+        </div>
+        <div class="card"
+            style="padding: 1.5rem; border-left: 6px solid #dc3545; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+            <h3 style="margin: 0 0 0.5rem 0; color: #444; font-size: 1.2rem;">Cobranças <small
+                    style="font-weight: normal; color: #888;">({{ resumo_mes['cobrancas']['qtd'] }})</small></h3>
+            <div style="font-size: 1.3rem; font-weight: bold; color: #444;">Neg: R$ {{
+                "%.2f"|format(resumo_mes['cobrancas']['bruto'])|replace('.', ',') }}</div>
+            <div style="font-size: 1.1rem; color: #dc3545; font-weight: 500; margin-top: 5px;">Com: R$ {{
+                "%.2f"|format(resumo_mes['cobrancas']['val'])|replace('.', ',') }}</div>
+        </div>
+        <div class="card"
+            style="padding: 1.5rem; border-left: 6px solid #ffc107; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+            <h3 style="margin: 0 0 0.5rem 0; color: #444; font-size: 1.2rem;">Consultas <small
+                    style="font-weight: normal; color: #888;">({{ resumo_mes['consultas']['qtd'] }})</small></h3>
+            <div style="font-size: 1.6rem; font-weight: bold; color: #ffc107;">{{ resumo_mes['consultas']['qtd'] }}
+            </div>
+            <div style="font-size: 1.1rem; color: #888; font-weight: 500; margin-top: 5px;">Com: R$ {{
+                "%.2f"|format(resumo_mes['consultas']['val'])|replace('.', ',') }}</div>
+        </div>
+        <div class="card"
+            style="padding: 1.5rem; border-left: 6px solid #17a2b8; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+            <h3 style="margin: 0 0 0.5rem 0; color: #444; font-size: 1.2rem;">Procedimentos <small
+                    style="font-weight: normal; color: #888;">({{ resumo_mes['procedimentos']['qtd'] }})</small></h3>
+            <div style="font-size: 1.6rem; font-weight: bold; color: #17a2b8;">{{ resumo_mes['procedimentos']['qtd'] }}
+            </div>
+            <div style="font-size: 1.1rem; color: #888; font-weight: 500; margin-top: 5px;">Com: R$ {{
+                "%.2f"|format(resumo_mes['procedimentos']['val'])|replace('.', ',') }}</div>
         </div>
     </div>
 </div>
 
 <!-- Destaque Secundário: Histórico Geral -->
 <div style="margin-bottom: 2rem; opacity: 0.9;">
-    <div class="card" style="background: #f8f9fa; border-left: 4px solid #888;">
-        <h4 style="color: #666; margin-bottom: 0.5rem;">Total Geral Acumulado (Todos os tempos)</h4>
-        <div style="font-size: 1.8rem; font-weight: bold; color: #444;">R$ {{
-            "%.2f"|format(total_acumulado_geral)|replace('.', ',') }}</div>
-        <div style="color: #888; font-size: 0.9rem;">{{ total_itens_geral }} Itens Registrados no total da plataforma
-        </div>
+    <div
+        style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; border-bottom: 1px solid #ddd; padding-bottom: 0.5rem;">
+        <h3 style="color: #666; margin: 0; font-size: 1.3rem;">Histórico Acumulado <small
+                style="color: #888; font-weight: normal;">(Todos os tempos)</small></h3>
+        <h4 style="color: #666; margin: 0; font-size: 1.3rem;">Total: R$ {{
+            "%.2f"|format(total_acumulado_geral)|replace('.', ',') }}</h4>
     </div>
-</div>
 
-<!-- Cards de Resumo por Categoria -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-    <div class="card" style="padding: 1rem; border-left: 5px solid #28a745;">
-        <h4 style="margin: 0; color: #555;">Vendas <small>({{ resumo_geral['vendas']['qtd'] }})</small></h4>
-        <div style="font-size: 1.1rem; font-weight: bold; color: #555;">Trans: R$ {{
-            "%.2f"|format(resumo_geral['vendas']['bruto'])|replace('.', ',') }}</div>
-        <div style="font-size: 0.9rem; color: #28a745;">Com: R$ {{
-            "%.2f"|format(resumo_geral['vendas']['val'])|replace('.', ',') }}</div>
-    </div>
-    <div class="card" style="padding: 1rem; border-left: 5px solid #dc3545;">
-        <h4 style="margin: 0; color: #555;">Cobranças <small>({{ resumo_geral['cobrancas']['qtd'] }})</small></h4>
-        <div style="font-size: 1.1rem; font-weight: bold; color: #555;">Neg: R$ {{
-            "%.2f"|format(resumo_geral['cobrancas']['bruto'])|replace('.', ',') }}</div>
-        <div style="font-size: 0.9rem; color: #dc3545;">Com: R$ {{
-            "%.2f"|format(resumo_geral['cobrancas']['val'])|replace('.', ',') }}</div>
-    </div>
-    <div class="card" style="padding: 1rem; border-left: 5px solid #ffc107;">
-        <h4 style="margin: 0; color: #555;">Consultas</h4>
-        <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">{{ resumo_geral['consultas']['qtd'] }}
+    <!-- Cards de Resumo por Categoria -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div class="card" style="padding: 1.2rem; border-left: 5px solid #28a745;">
+            <h4 style="margin: 0; color: #555;">Vendas <small style="font-weight: normal; color: #888;">({{
+                    resumo_geral['vendas']['qtd'] }})</small></h4>
+            <div style="font-size: 1.1rem; font-weight: bold; color: #555; margin-top: 5px;">Trans: R$ {{
+                "%.2f"|format(resumo_geral['vendas']['bruto'])|replace('.', ',') }}</div>
+            <div style="font-size: 0.95rem; color: #28a745; margin-top: 3px;">Com: R$ {{
+                "%.2f"|format(resumo_geral['vendas']['val'])|replace('.', ',') }}</div>
         </div>
-        <div style="color: #888;">Com: R$ {{ "%.2f"|format(resumo_geral['consultas']['val'])|replace('.', ',') }}
+        <div class="card" style="padding: 1.2rem; border-left: 5px solid #dc3545;">
+            <h4 style="margin: 0; color: #555;">Cobranças <small style="font-weight: normal; color: #888;">({{
+                    resumo_geral['cobrancas']['qtd'] }})</small></h4>
+            <div style="font-size: 1.1rem; font-weight: bold; color: #555; margin-top: 5px;">Neg: R$ {{
+                "%.2f"|format(resumo_geral['cobrancas']['bruto'])|replace('.', ',') }}</div>
+            <div style="font-size: 0.95rem; color: #dc3545; margin-top: 3px;">Com: R$ {{
+                "%.2f"|format(resumo_geral['cobrancas']['val'])|replace('.', ',') }}</div>
+        </div>
+        <div class="card" style="padding: 1.2rem; border-left: 5px solid #ffc107;">
+            <h4 style="margin: 0; color: #555;">Consultas <small style="font-weight: normal; color: #888;">({{
+                    resumo_geral['consultas']['qtd'] }})</small></h4>
+            <div style="font-size: 1.3rem; font-weight: bold; color: #ffc107; margin-top: 5px;">{{
+                resumo_geral['consultas']['qtd'] }}</div>
+            <div style="color: #888; font-size: 0.95rem; margin-top: 3px;">Com: R$ {{
+                "%.2f"|format(resumo_geral['consultas']['val'])|replace('.', ',') }}</div>
+        </div>
+        <div class="card" style="padding: 1.2rem; border-left: 5px solid #17a2b8;">
+            <h4 style="margin: 0; color: #555;">Procedimentos <small style="font-weight: normal; color: #888;">({{
+                    resumo_geral['procedimentos']['qtd'] }})</small></h4>
+            <div style="font-size: 1.3rem; font-weight: bold; color: #17a2b8; margin-top: 5px;">{{
+                resumo_geral['procedimentos']['qtd'] }}</div>
+            <div style="color: #888; font-size: 0.95rem; margin-top: 3px;">Com: R$ {{
+                "%.2f"|format(resumo_geral['procedimentos']['val'])|replace('.', ',') }}</div>
         </div>
     </div>
-    <div class="card" style="padding: 1rem; border-left: 5px solid #17a2b8;">
-        <h4 style="margin: 0; color: #555;">Procedimentos</h4>
-        <div style="font-size: 1.5rem; font-weight: bold; color: #17a2b8;">{{ resumo_geral['procedimentos']['qtd']
-            }}</div>
-        <div style="color: #888;">Com: R$ {{ "%.2f"|format(resumo_geral['procedimentos']['val'])|replace('.', ',')
-            }}</div>
-    </div>
-</div>
 </div>
 
 <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
