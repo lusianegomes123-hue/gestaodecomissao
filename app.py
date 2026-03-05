@@ -233,40 +233,66 @@ def relatorios():
             'mes': mes, 'ano': ano
         })
 
-    # Filtro
+    # Filtro Explícito vs Padrão
     mes_filtro = request.args.get('mes', type=int)
     ano_filtro = request.args.get('ano', type=int)
     
-    if not mes_filtro or not ano_filtro:
-        agora = datetime.now()
+    agora = datetime.now()
+    filtro_explicito = bool(mes_filtro and ano_filtro)
+    
+    if not filtro_explicito:
+        # Modo Padrão (Sem clique no Histórico): Topo exibe o mês atual
         mes_filtro = agora.month
         ano_filtro = agora.year
         
-        # Inteligência UX: Se o mês atual não tem lançamentos, mas houver histórico passado
-        # abrir no último mês para que o usuário veja seus dados ao invés de uma tela vazia.
-        current_ym = f"{ano_filtro:04d}-{mes_filtro:02d}"
-        if current_ym not in historico and historico_ordenado:
-            ultimo_ano_mes = historico_ordenado[0][0]
-            ano_filtro, mes_filtro = map(int, ultimo_ano_mes.split('-'))
-    
     _, last_day = calendar.monthrange(ano_filtro, mes_filtro)
     inicio_filtro = datetime(ano_filtro, mes_filtro, 1).date()
     fim_filtro = datetime(ano_filtro, mes_filtro, last_day).date()
-
-    detalhes = {
-        'vendas': base_query(Vendas).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro).all(),
-        'cobrancas': base_query(Cobrancas).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro).all(),
-        'consultas': base_query(Consultas).filter(Consultas.data_consulta >= inicio_filtro, Consultas.data_consulta <= fim_filtro).all(),
-        'procedimentos': base_query(Procedimentos).filter(Procedimentos.data_procedimento >= inicio_filtro, Procedimentos.data_procedimento <= fim_filtro).all(),
-    }
     
-    total_mes_selecionado = historico.get(f"{ano_filtro:04d}-{mes_filtro:02d}", 0.0)
+    # Detalhes das tabelas inferiores (Só carrega se clicou no histórico)
+    if filtro_explicito:
+        detalhes = {
+            'vendas': base_query(Vendas).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro).all(),
+            'cobrancas': base_query(Cobrancas).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro).all(),
+            'consultas': base_query(Consultas).filter(Consultas.data_consulta >= inicio_filtro, Consultas.data_consulta <= fim_filtro).all(),
+            'procedimentos': base_query(Procedimentos).filter(Procedimentos.data_procedimento >= inicio_filtro, Procedimentos.data_procedimento <= fim_filtro).all(),
+        }
+    else:
+        detalhes = { 'vendas': [], 'cobrancas': [], 'consultas': [], 'procedimentos': [] }
+
+    # Resumo do Mês (Para os Cards Gigantes do Topo)
+    # Sempre deve usar os dados do mês atual se não houver filtro, ou do mês filtrado se houver.
+    qv_mes = base_query(Vendas).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro).count()
+    vv_mes = db.session.query(func.sum(Vendas.comissao_calculada)).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro)
+    bv_mes = db.session.query(func.sum(Vendas.valor_total)).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro)
+    if not is_admin: 
+        vv_mes, bv_mes = vv_mes.filter(Vendas.user_id == current_user.id), bv_mes.filter(Vendas.user_id == current_user.id)
+    vv_mes, bv_mes = vv_mes.scalar() or 0, bv_mes.scalar() or 0
+
+    qcb_mes = base_query(Cobrancas).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro).count()
+    vcb_mes = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro)
+    bcb_mes = db.session.query(func.sum(Cobrancas.valor_negociado)).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro)
+    if not is_admin:
+        vcb_mes, bcb_mes = vcb_mes.filter(Cobrancas.user_id == current_user.id), bcb_mes.filter(Cobrancas.user_id == current_user.id)
+    vcb_mes, bcb_mes = vcb_mes.scalar() or 0, bcb_mes.scalar() or 0
+
+    qcs_mes = base_query(Consultas).filter(Consultas.data_consulta >= inicio_filtro, Consultas.data_consulta <= fim_filtro).count()
+    vcs_mes = db.session.query(func.sum(Consultas.comissao_calculada)).filter(Consultas.data_consulta >= inicio_filtro, Consultas.data_consulta <= fim_filtro)
+    if not is_admin: vcs_mes = vcs_mes.filter(Consultas.user_id == current_user.id)
+    vcs_mes = vcs_mes.scalar() or 0
+
+    qp_mes = base_query(Procedimentos).filter(Procedimentos.data_procedimento >= inicio_filtro, Procedimentos.data_procedimento <= fim_filtro).count()
+    vp_mes = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter(Procedimentos.data_procedimento >= inicio_filtro, Procedimentos.data_procedimento <= fim_filtro)
+    if not is_admin: vp_mes = vp_mes.filter(Procedimentos.user_id == current_user.id)
+    vp_mes = vp_mes.scalar() or 0
+
+    total_mes_selecionado = vv_mes + vcb_mes + vcs_mes + vp_mes
     
     resumo_mes = {
-        'vendas': {'qtd': len(detalhes['vendas']), 'val': sum(v.comissao_calculada for v in detalhes['vendas']), 'bruto': sum(v.valor_total for v in detalhes['vendas'])},
-        'cobrancas': {'qtd': len(detalhes['cobrancas']), 'val': sum(c.comissao_calculada for c in detalhes['cobrancas']), 'bruto': sum(c.valor_negociado for c in detalhes['cobrancas'])},
-        'consultas': {'qtd': len(detalhes['consultas']), 'val': sum(c.comissao_calculada for c in detalhes['consultas']), 'bruto': 0},
-        'procedimentos': {'qtd': len(detalhes['procedimentos']), 'val': sum(p.comissao_calculada for p in detalhes['procedimentos']), 'bruto': 0}
+        'vendas': {'qtd': qv_mes, 'val': vv_mes, 'bruto': bv_mes},
+        'cobrancas': {'qtd': qcb_mes, 'val': vcb_mes, 'bruto': bcb_mes},
+        'consultas': {'qtd': qcs_mes, 'val': vcs_mes, 'bruto': 0},
+        'procedimentos': {'qtd': qp_mes, 'val': vp_mes, 'bruto': 0}
     }
 
     user_dict = {u.id: u.full_name for u in User.query.all()}

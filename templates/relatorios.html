@@ -141,18 +141,19 @@
     </div>
 
     <!-- 3. Detalhes do Mês Selecionado -->
+    {% if detalhes['vendas'] or detalhes['cobrancas'] or detalhes['consultas'] or detalhes['procedimentos'] %}
     <div class="card">
         <div
             style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 1rem; margin-bottom: 1rem;">
             <h3>Lançamentos {{ filtro.mes }}/{{ filtro.ano }}</h3>
         </div>
 
+        {% if detalhes['vendas'] %}
         <h4>Vendas</h4>
         <table>
             <thead>
                 <tr>
                     <th>Data</th>
-                    <th>Atendente</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
                 </tr>
@@ -160,25 +161,21 @@
             <tbody>
                 {% for v in detalhes['vendas'] %}
                 <tr>
-                    <td>{{ v.data_venda }}</td>
-                    <td>{{ user_dict.get(v.user_id, 'Desconhecido') }}</td>
+                    <td>{{ v.data_venda.strftime('%d/%m/%Y') }}</td>
                     <td>{{ v.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(v.comissao_calculada)|replace('.', ',') }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="3" style="color: #999;">Sem vendas este mês.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% endif %}
 
+        {% if detalhes['cobrancas'] %}
         <h4 style="margin-top: 1.5rem;">Cobranças</h4>
         <table>
             <thead>
                 <tr>
                     <th>Data</th>
-                    <th>Atendente</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
                 </tr>
@@ -186,25 +183,21 @@
             <tbody>
                 {% for c in detalhes['cobrancas'] %}
                 <tr>
-                    <td>{{ c.data_negociacao }}</td>
-                    <td>{{ user_dict.get(c.user_id, 'Desconhecido') }}</td>
+                    <td>{{ c.data_negociacao.strftime('%d/%m/%Y') }}</td>
                     <td>{{ c.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(c.comissao_calculada)|replace('.', ',') }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="3" style="color: #999;">Sem cobranças este mês.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% endif %}
 
+        {% if detalhes['consultas'] %}
         <h4 style="margin-top: 1.5rem;">Consultas</h4>
         <table>
             <thead>
                 <tr>
                     <th>Data</th>
-                    <th>Atendente</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
                 </tr>
@@ -212,25 +205,21 @@
             <tbody>
                 {% for c in detalhes['consultas'] %}
                 <tr>
-                    <td>{{ c.data_consulta }}</td>
-                    <td>{{ user_dict.get(c.user_id, 'Desconhecido') }}</td>
+                    <td>{{ c.data_consulta.strftime('%d/%m/%Y') }}</td>
                     <td>{{ c.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(c.comissao_calculada)|replace('.', ',') }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="3" style="color: #999;">Sem consultas este mês.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% endif %}
 
+        {% if detalhes['procedimentos'] %}
         <h4 style="margin-top: 1.5rem;">Procedimentos</h4>
         <table>
             <thead>
                 <tr>
                     <th>Data</th>
-                    <th>Atendente</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
                 </tr>
@@ -238,18 +227,15 @@
             <tbody>
                 {% for p in detalhes['procedimentos'] %}
                 <tr>
-                    <td>{{ p.data_procedimento }}</td>
-                    <td>{{ user_dict.get(p.user_id, 'Desconhecido') }}</td>
+                    <td>{{ p.data_procedimento.strftime('%d/%m/%Y') }}</td>
                     <td>{{ p.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(p.comissao_calculada)|replace('.', ',') }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="3" style="color: #999;">Sem procedimentos este mês.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% endif %}
     </div>
+    {% endif %}
 </div>
 {% endblock %}
