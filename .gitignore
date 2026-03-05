@@ -6,7 +6,6 @@ __pycache__/
 .env
 
 # Database
-*.db
 instance/
 comissoes_prod.db
 comissoes_v1_restaurado.db
