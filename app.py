@@ -233,24 +233,23 @@ def relatorios():
             'mes': mes, 'ano': ano
         })
 
-    # Filtro Explícito vs Padrão
+    # Mês Atual Sempre Real (Para os Cards Gigantes do Topo)
+    agora = datetime.now()
+    mes_atual = agora.month
+    ano_atual = agora.year
+    _, last_day_atual = calendar.monthrange(ano_atual, mes_atual)
+    inicio_atual = datetime(ano_atual, mes_atual, 1).date()
+    fim_atual = datetime(ano_atual, mes_atual, last_day_atual).date()
+
+    # Filtro do Histórico (Para exibir as Tabelas Detalhadas Embaixo)
     mes_filtro = request.args.get('mes', type=int)
     ano_filtro = request.args.get('ano', type=int)
-    
-    agora = datetime.now()
     filtro_explicito = bool(mes_filtro and ano_filtro)
     
-    if not filtro_explicito:
-        # Modo Padrão (Sem clique no Histórico): Topo exibe o mês atual
-        mes_filtro = agora.month
-        ano_filtro = agora.year
-        
-    _, last_day = calendar.monthrange(ano_filtro, mes_filtro)
-    inicio_filtro = datetime(ano_filtro, mes_filtro, 1).date()
-    fim_filtro = datetime(ano_filtro, mes_filtro, last_day).date()
-    
-    # Detalhes das tabelas inferiores (Só carrega se clicou no histórico)
     if filtro_explicito:
+        _, last_day_filtro = calendar.monthrange(ano_filtro, mes_filtro)
+        inicio_filtro = datetime(ano_filtro, mes_filtro, 1).date()
+        fim_filtro = datetime(ano_filtro, mes_filtro, last_day_filtro).date()
         detalhes = {
             'vendas': base_query(Vendas).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro).all(),
             'cobrancas': base_query(Cobrancas).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro).all(),
@@ -260,35 +259,34 @@ def relatorios():
     else:
         detalhes = { 'vendas': [], 'cobrancas': [], 'consultas': [], 'procedimentos': [] }
 
-    # Resumo do Mês (Para os Cards Gigantes do Topo)
-    # Sempre deve usar os dados do mês atual se não houver filtro, ou do mês filtrado se houver.
-    qv_mes = base_query(Vendas).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro).count()
-    vv_mes = db.session.query(func.sum(Vendas.comissao_calculada)).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro)
-    bv_mes = db.session.query(func.sum(Vendas.valor_total)).filter(Vendas.data_venda >= inicio_filtro, Vendas.data_venda <= fim_filtro)
+    # Calcula os valores exclusivamente para os cards do Mês Atual do topo
+    qv_mes = base_query(Vendas).filter(Vendas.data_venda >= inicio_atual, Vendas.data_venda <= fim_atual).count()
+    vv_mes = db.session.query(func.sum(Vendas.comissao_calculada)).filter(Vendas.data_venda >= inicio_atual, Vendas.data_venda <= fim_atual)
+    bv_mes = db.session.query(func.sum(Vendas.valor_total)).filter(Vendas.data_venda >= inicio_atual, Vendas.data_venda <= fim_atual)
     if not is_admin: 
         vv_mes, bv_mes = vv_mes.filter(Vendas.user_id == current_user.id), bv_mes.filter(Vendas.user_id == current_user.id)
     vv_mes, bv_mes = vv_mes.scalar() or 0, bv_mes.scalar() or 0
 
-    qcb_mes = base_query(Cobrancas).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro).count()
-    vcb_mes = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro)
-    bcb_mes = db.session.query(func.sum(Cobrancas.valor_negociado)).filter(Cobrancas.data_negociacao >= inicio_filtro, Cobrancas.data_negociacao <= fim_filtro)
+    qcb_mes = base_query(Cobrancas).filter(Cobrancas.data_negociacao >= inicio_atual, Cobrancas.data_negociacao <= fim_atual).count()
+    vcb_mes = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter(Cobrancas.data_negociacao >= inicio_atual, Cobrancas.data_negociacao <= fim_atual)
+    bcb_mes = db.session.query(func.sum(Cobrancas.valor_negociado)).filter(Cobrancas.data_negociacao >= inicio_atual, Cobrancas.data_negociacao <= fim_atual)
     if not is_admin:
         vcb_mes, bcb_mes = vcb_mes.filter(Cobrancas.user_id == current_user.id), bcb_mes.filter(Cobrancas.user_id == current_user.id)
     vcb_mes, bcb_mes = vcb_mes.scalar() or 0, bcb_mes.scalar() or 0
 
-    qcs_mes = base_query(Consultas).filter(Consultas.data_consulta >= inicio_filtro, Consultas.data_consulta <= fim_filtro).count()
-    vcs_mes = db.session.query(func.sum(Consultas.comissao_calculada)).filter(Consultas.data_consulta >= inicio_filtro, Consultas.data_consulta <= fim_filtro)
+    qcs_mes = base_query(Consultas).filter(Consultas.data_consulta >= inicio_atual, Consultas.data_consulta <= fim_atual).count()
+    vcs_mes = db.session.query(func.sum(Consultas.comissao_calculada)).filter(Consultas.data_consulta >= inicio_atual, Consultas.data_consulta <= fim_atual)
     if not is_admin: vcs_mes = vcs_mes.filter(Consultas.user_id == current_user.id)
     vcs_mes = vcs_mes.scalar() or 0
 
-    qp_mes = base_query(Procedimentos).filter(Procedimentos.data_procedimento >= inicio_filtro, Procedimentos.data_procedimento <= fim_filtro).count()
-    vp_mes = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter(Procedimentos.data_procedimento >= inicio_filtro, Procedimentos.data_procedimento <= fim_filtro)
+    qp_mes = base_query(Procedimentos).filter(Procedimentos.data_procedimento >= inicio_atual, Procedimentos.data_procedimento <= fim_atual).count()
+    vp_mes = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter(Procedimentos.data_procedimento >= inicio_atual, Procedimentos.data_procedimento <= fim_atual)
     if not is_admin: vp_mes = vp_mes.filter(Procedimentos.user_id == current_user.id)
     vp_mes = vp_mes.scalar() or 0
 
-    total_mes_selecionado = vv_mes + vcb_mes + vcs_mes + vp_mes
+    total_mes_atual = vv_mes + vcb_mes + vcs_mes + vp_mes
     
-    resumo_mes = {
+    resumo_mes_atual = {
         'vendas': {'qtd': qv_mes, 'val': vv_mes, 'bruto': bv_mes},
         'cobrancas': {'qtd': qcb_mes, 'val': vcb_mes, 'bruto': bcb_mes},
         'consultas': {'qtd': qcs_mes, 'val': vcs_mes, 'bruto': 0},
@@ -303,8 +301,12 @@ def relatorios():
                            resumo_geral=resumo_geral,
                            lista_historico=lista_historico,
                            detalhes=detalhes,
-                           resumo_mes=resumo_mes,
-                           filtro={'mes': mes_filtro, 'ano': ano_filtro, 'total': total_mes_selecionado},
+                           resumo_mes=resumo_mes_atual,
+                           total_mes_atual=total_mes_atual,
+                           mes_atual=mes_atual,
+                           ano_atual=ano_atual,
+                           filtro={'mes': mes_filtro, 'ano': ano_filtro},
+                           filtro_explicito=filtro_explicito,
                            user_dict=user_dict)
 
 @app.route('/vendas', methods=['GET', 'POST'])

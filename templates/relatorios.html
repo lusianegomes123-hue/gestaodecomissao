@@ -7,10 +7,10 @@
     style="margin-bottom: 2.5rem; padding: 1.5rem; border-left: 6px solid #66A3FF; background: #fdfdfd; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
     <div
         style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem; border-bottom: 2px solid #eaeaea; padding-bottom: 1rem;">
-        <h2 style="color: #333; margin: 0; font-size: 1.6rem;">Lançamentos do Mês <small
-                style="color: #777; font-weight: normal;">({{ filtro.mes }}/{{ filtro.ano }})</small></h2>
+        <h2 style="color: #333; margin: 0; font-size: 1.6rem;">Lançamentos do Mês Atual <small
+                style="color: #777; font-weight: normal;">({{ mes_atual }}/{{ ano_atual }})</small></h2>
         <h3 style="color: var(--primary-color); margin: 0; font-size: 1.8rem;">Total: R$ {{
-            "%.2f"|format(filtro.total)|replace('.', ',') }}</h3>
+            "%.2f"|format(total_mes_atual)|replace('.', ',') }}</h3>
     </div>
 
     <!-- Cards de Resumo do Mês (Detalhes Internos) -->
@@ -141,7 +141,7 @@
     </div>
 
     <!-- 3. Detalhes do Mês Selecionado -->
-    {% if detalhes['vendas'] or detalhes['cobrancas'] or detalhes['consultas'] or detalhes['procedimentos'] %}
+    {% if filtro_explicito %}
     <div class="card">
         <div
             style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 1rem; margin-bottom: 1rem;">
@@ -235,6 +235,16 @@
             </tbody>
         </table>
         {% endif %}
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="card"
+        style="display: flex; align-items: center; justify-content: center; min-height: 200px; color: #888; text-align: center; border: 2px dashed #ddd; background: transparent; box-shadow: none;">
+        <div>
+            <h3 style="margin-bottom: 0.5rem; color: #666; font-size: 1.3rem;">Detalhes do Mês</h3>
+            <p>Selecione um mês no <strong>Histórico Mensal</strong> ao lado para visualizar os lançamentos detalhados
+                dele aqui.</p>
+        </div>
     </div>
     {% endif %}
 </div>
