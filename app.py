@@ -24,8 +24,20 @@ def create_tables():
     db.create_all()
 
 import traceback
+from sqlalchemy.exc import OperationalError
+
 @app.errorhandler(Exception)
 def handle_exception(e):
+    error_str = str(e)
+    if "Name or service not known" in error_str or "could not translate host name" in error_str:
+        return """
+        <div style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+            <h2>Aguarde um instante! ☕</h2>
+            <p>O Banco de Dados do sistema no Render.com entrou em 'modo de economia de energia' por inatividade.</p>
+            <p>Ele já está sendo reativado automaticamente. Isso pode levar cerca de <b>1 a 2 minutos</b>.</p>
+            <p>Por favor, atualize esta página (F5) repetidamente até carregar.</p>
+        </div>
+        """, 503
     return f"<pre>{traceback.format_exc()}</pre>", 500
 
 # --- Rotas de Autenticação ---
