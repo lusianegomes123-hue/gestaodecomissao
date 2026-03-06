@@ -1,0 +1,9 @@
+﻿Connected to Supabase successfully.
+Creating tables in Supabase...
+Tables created.
+Connecting to local SQLite DB to fetch data...
+Migrating Users...
+Error during migration: (sqlite3.OperationalError) no such column: users.full_name
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.full_name AS users_full_name, users.password_hash AS users_password_hash 
+FROM users]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

@@ -1,0 +1,8 @@
+﻿
+[!] Aviso: N├úo foi poss├¡vel gerar Link P├║blico Ngrok. Erro: The ngrok process errored on start: authentication failed: Usage of ngrok requires a verified account and authtoken.\n\nSign up for an account: https://dashboard.ngrok.com/signup\nInstall your authtoken: https://dashboard.ngrok.com/get-started/your-authtoken\r\n\r\nERR_NGROK_4018\r\n.
+    (Verifique sua conex├úo de internet)
+
+ ­ƒÅá ACESSE SEU APP AQUI (LOCAL):   http://127.0.0.1:5003
+
+ * Serving Flask app 'app'
+ * Debug mode: off

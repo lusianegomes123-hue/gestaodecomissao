@@ -1,0 +1,325 @@
+﻿py : Traceback (most 
+recent call last):
+No linha:1 caractere:32
++ $env:PYTHONIOENCODING
+="utf-8"; py 
+test_err.py 2> 
+err_out.txt
++                      
+          ~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (Traceback (mo   
+ st recent call las    
+t)::String) [], Re    
+moteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+engine\base.py", line 
+1967, in 
+_exec_single_context
+    self.dialect.do_exe
+cute(
+    ~~~~~~~~~~~~~~~~~~~
+~~~~^
+        cursor, 
+str_statement, 
+effective_parameters, 
+context
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+engine\default.py", 
+line 952, in do_execute
+    cursor.execute(stat
+ement, parameters)
+    ~~~~~~~~~~~~~~^^^^^
+^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalErro
+r: no such column: 
+vendas.user_id
+
+The above exception 
+was the direct cause 
+of the following 
+exception:
+
+Traceback (most recent 
+call last):
+  File "C:\Users\lusia\
+.gemini\antigravity\scr
+atch\commission_system\
+test_err.py", line 11, 
+in <module>
+    print(db.session.qu
+ery(func.sum(Vendas.com
+issao_calculada)).filte
+r_by(user_id=1).filter(
+Vendas.data_venda >= 
+inicio, 
+Vendas.data_venda <= 
+fim).scalar())
+          ~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~^^
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+orm\query.py", line 
+2835, in scalar
+    ret = self.one()
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+orm\query.py", line 
+2808, in one
+    return 
+self._iter().one()  # 
+type: ignore
+           ~~~~~~~~~~^^
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+orm\query.py", line 
+2857, in _iter
+    result: Union[Scala
+rResult[_T], 
+Result[_T]] = 
+self.session.execute(
+                       
+                       
+    
+~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+        params,
+        ^^^^^^^
+        execution_optio
+ns={"_sa_orm_load_optio
+ns": 
+self.load_options},
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^
+    )
+    ^
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+orm\session.py", line 
+2351, in execute
+    return 
+self._execute_internal(
+           
+~~~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        
+_add_event=_add_event,
+        
+^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+orm\session.py", line 
+2249, in 
+_execute_internal
+    result: 
+Result[Any] = compile_s
+tate_cls.orm_execute_st
+atement(
+                       
+   ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<4 lines>...
+        conn,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+orm\context.py", line 
+306, in 
+orm_execute_statement
+    result = 
+conn.execute(
+        statement, 
+params or {}, execution
+_options=execution_opti
+ons
+    )
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+engine\base.py", line 
+1419, in execute
+    return meth(
+        self,
+        
+distilled_parameters,
+        
+execution_options or 
+NO_OPTIONS,
+    )
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+sql\elements.py", line 
+527, in 
+_execute_on_connection
+    return connection._
+execute_clauseelement(
+           ~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~^
+        self, 
+distilled_params, 
+execution_options
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^
+    )
+    ^
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+engine\base.py", line 
+1641, in 
+_execute_clauseelement
+    ret = 
+self._execute_context(
+        dialect,
+    ...<8 lines>...
+        
+cache_hit=cache_hit,
+    )
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+engine\base.py", line 
+1846, in 
+_execute_context
+    return self._exec_s
+ingle_context(
+           ~~~~~~~~~~~~
+~~~~~~~~~~~~~^
+        dialect, 
+context, statement, 
+parameters
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^
+    )
+    ^
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+engine\base.py", line 
+1986, in 
+_exec_single_context
+    self._handle_dbapi_
+exception(
+    ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~^
+        e, 
+str_statement, 
+effective_parameters, 
+cursor, context
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+engine\base.py", line 
+2363, in 
+_handle_dbapi_exception
+    raise sqlalchemy_ex
+ception.with_traceback(
+exc_info[2]) from e
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+engine\base.py", line 
+1967, in 
+_exec_single_context
+    self.dialect.do_exe
+cute(
+    ~~~~~~~~~~~~~~~~~~~
+~~~~^
+        cursor, 
+str_statement, 
+effective_parameters, 
+context
+        ^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lusia\
+AppData\Local\Python\py
+thoncore-3.14-64\Lib\si
+te-packages\sqlalchemy\
+engine\default.py", 
+line 952, in do_execute
+    cursor.execute(stat
+ement, parameters)
+    ~~~~~~~~~~~~~~^^^^^
+^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.Operatio
+nalError: (sqlite3.Oper
+ationalError) no such 
+column: vendas.user_id
+[SQL: SELECT sum(vendas
+.comissao_calculada) 
+AS sum_1 
+FROM vendas 
+WHERE vendas.user_id = 
+? AND 
+vendas.data_venda >= ? 
+AND vendas.data_venda 
+<= ?]
+[parameters: (1, 
+'2026-03-01', 
+'2026-03-31')]
+(Background on this 
+error at: https://sqlal
+che.me/e/20/e3q8)

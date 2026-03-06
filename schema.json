@@ -1,0 +1,41 @@
+{
+  "users": [
+    "id",
+    "username",
+    "full_name",
+    "password_hash"
+  ],
+  "vendas": [
+    "id",
+    "user_id",
+    "nome_cliente",
+    "data_venda",
+    "tipo_venda",
+    "valor_total",
+    "comissao_calculada"
+  ],
+  "cobrancas": [
+    "id",
+    "user_id",
+    "nome_cliente",
+    "data_negociacao",
+    "valor_negociado",
+    "comissao_calculada"
+  ],
+  "consultas": [
+    "id",
+    "user_id",
+    "nome_cliente",
+    "data_consulta",
+    "status",
+    "comissao_calculada"
+  ],
+  "procedimentos": [
+    "id",
+    "user_id",
+    "nome_cliente",
+    "data_procedimento",
+    "tipo_procedimento",
+    "comissao_calculada"
+  ]
+}

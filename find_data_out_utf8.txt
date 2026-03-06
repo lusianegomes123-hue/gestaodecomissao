@@ -1,0 +1,8 @@
+﻿[comissoes_prod.db] vendas: 1 rows. Last: 2026-02-10
+   ---> FOUND 1 FEB RECORDS HERE!
+[comissoes_v1.db] No vendas table
+[comissoes_v1_restaurado.db] vendas: 0 rows. Last: N/A
+[instance\comissoes.db] vendas: 2 rows. Last: 2026-01-24
+[instance\comissoes_final.db] vendas: 0 rows. Last: N/A
+[instance\comissoes_v2.db] vendas: 0 rows. Last: N/A
+[instance\comissoes_v3.db] vendas: 0 rows. Last: N/A
