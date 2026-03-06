@@ -345,7 +345,7 @@ def delete_venda(id):
     db.session.delete(venda)
     db.session.commit()
     flash('Venda excluída com sucesso!')
-    return redirect(url_for('vendas'))
+    return redirect(request.referrer or url_for('vendas'))
 
 @app.route('/cobrancas', methods=['GET', 'POST'])
 @login_required
@@ -413,7 +413,7 @@ def delete_cobranca(id):
     db.session.delete(item)
     db.session.commit()
     flash('Cobrança excluída com sucesso!')
-    return redirect(url_for('cobrancas'))
+    return redirect(request.referrer or url_for('cobrancas'))
 
 @app.route('/consultas', methods=['GET', 'POST'])
 @login_required
@@ -476,7 +476,7 @@ def delete_consulta(id):
     db.session.delete(item)
     db.session.commit()
     flash('Consulta excluída com sucesso!')
-    return redirect(url_for('consultas'))
+    return redirect(request.referrer or url_for('consultas'))
 
 @app.route('/procedimentos', methods=['GET', 'POST'])
 @login_required
@@ -541,7 +541,7 @@ def delete_procedimento(id):
     db.session.delete(item)
     db.session.commit()
     flash('Procedimento excluído com sucesso!')
-    return redirect(url_for('procedimentos'))
+    return redirect(request.referrer or url_for('procedimentos'))
 
 @app.route('/admin/users')
 @login_required

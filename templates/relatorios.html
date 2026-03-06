@@ -156,6 +156,7 @@
                     <th>Data</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -164,6 +165,10 @@
                     <td>{{ v.data_venda.strftime('%d/%m/%Y') }}</td>
                     <td>{{ v.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(v.comissao_calculada)|replace('.', ',') }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_venda', id=v.id) }}"
+                            style="text-decoration: none; font-size: 1.2rem;" title="Excluir">🗑️</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -178,6 +183,7 @@
                     <th>Data</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -186,6 +192,10 @@
                     <td>{{ c.data_negociacao.strftime('%d/%m/%Y') }}</td>
                     <td>{{ c.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(c.comissao_calculada)|replace('.', ',') }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_cobranca', id=c.id) }}"
+                            style="text-decoration: none; font-size: 1.2rem;" title="Excluir">🗑️</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -200,6 +210,7 @@
                     <th>Data</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -208,6 +219,10 @@
                     <td>{{ c.data_consulta.strftime('%d/%m/%Y') }}</td>
                     <td>{{ c.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(c.comissao_calculada)|replace('.', ',') }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_consulta', id=c.id) }}"
+                            style="text-decoration: none; font-size: 1.2rem;" title="Excluir">🗑️</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -222,6 +237,7 @@
                     <th>Data</th>
                     <th>Cliente</th>
                     <th>Comissão</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -230,6 +246,10 @@
                     <td>{{ p.data_procedimento.strftime('%d/%m/%Y') }}</td>
                     <td>{{ p.nome_cliente }}</td>
                     <td>R$ {{ "%.2f"|format(p.comissao_calculada)|replace('.', ',') }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_procedimento', id=p.id) }}"
+                            style="text-decoration: none; font-size: 1.2rem;" title="Excluir">🗑️</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
