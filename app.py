@@ -119,27 +119,11 @@ def home():
 @app.route('/geral')
 @login_required
 def relatorios():
-    is_admin = current_user.full_name.strip().lower() == "lusiane gomes simão"
-
     def base_query(model):
-        q = model.query
-        if not is_admin:
-            q = q.filter_by(user_id=current_user.id)
-        return q
+        return model.query.filter_by(user_id=current_user.id)
 
-    def sum_query(sum_col):
-        q = db.session.query(func.sum(sum_col))
-        if not is_admin:
-            # Need to join with model to filter by user_id
-            # Or simpler: we can't always just filter_by on scalar without the entity.
-            # Actually, query(func.sum(model.comissao_calculada)).filter(model.user_id == current_user.id)
-            pass
-        return q
-        
     def get_sum(model, col):
-        q = db.session.query(func.sum(col))
-        if not is_admin:
-            q = q.filter(model.user_id == current_user.id)
+        q = db.session.query(func.sum(col)).filter(model.user_id == current_user.id)
         return q.scalar() or 0
 
     # 1. Total Geral Acumulado
@@ -169,9 +153,7 @@ def relatorios():
 
     historico = defaultdict(float)
     def agregar(model, date_col):
-        q = db.session.query(date_col, model.comissao_calculada)
-        if not is_admin:
-            q = q.filter(model.user_id == current_user.id)
+        q = db.session.query(date_col, model.comissao_calculada).filter(model.user_id == current_user.id)
         results = q.all()
         for dt, valor in results:
             if dt:
@@ -223,28 +205,18 @@ def relatorios():
 
     # Calcula os valores exclusivamente para os cards do Mês Atual do topo
     qv_mes = base_query(Vendas).filter(Vendas.data_venda >= inicio_atual, Vendas.data_venda <= fim_atual).count()
-    vv_mes = db.session.query(func.sum(Vendas.comissao_calculada)).filter(Vendas.data_venda >= inicio_atual, Vendas.data_venda <= fim_atual)
-    bv_mes = db.session.query(func.sum(Vendas.valor_total)).filter(Vendas.data_venda >= inicio_atual, Vendas.data_venda <= fim_atual)
-    if not is_admin: 
-        vv_mes, bv_mes = vv_mes.filter(Vendas.user_id == current_user.id), bv_mes.filter(Vendas.user_id == current_user.id)
-    vv_mes, bv_mes = vv_mes.scalar() or 0, bv_mes.scalar() or 0
+    vv_mes = db.session.query(func.sum(Vendas.comissao_calculada)).filter(Vendas.user_id == current_user.id, Vendas.data_venda >= inicio_atual, Vendas.data_venda <= fim_atual).scalar() or 0
+    bv_mes = db.session.query(func.sum(Vendas.valor_total)).filter(Vendas.user_id == current_user.id, Vendas.data_venda >= inicio_atual, Vendas.data_venda <= fim_atual).scalar() or 0
 
     qcb_mes = base_query(Cobrancas).filter(Cobrancas.data_negociacao >= inicio_atual, Cobrancas.data_negociacao <= fim_atual).count()
-    vcb_mes = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter(Cobrancas.data_negociacao >= inicio_atual, Cobrancas.data_negociacao <= fim_atual)
-    bcb_mes = db.session.query(func.sum(Cobrancas.valor_negociado)).filter(Cobrancas.data_negociacao >= inicio_atual, Cobrancas.data_negociacao <= fim_atual)
-    if not is_admin:
-        vcb_mes, bcb_mes = vcb_mes.filter(Cobrancas.user_id == current_user.id), bcb_mes.filter(Cobrancas.user_id == current_user.id)
-    vcb_mes, bcb_mes = vcb_mes.scalar() or 0, bcb_mes.scalar() or 0
+    vcb_mes = db.session.query(func.sum(Cobrancas.comissao_calculada)).filter(Cobrancas.user_id == current_user.id, Cobrancas.data_negociacao >= inicio_atual, Cobrancas.data_negociacao <= fim_atual).scalar() or 0
+    bcb_mes = db.session.query(func.sum(Cobrancas.valor_negociado)).filter(Cobrancas.user_id == current_user.id, Cobrancas.data_negociacao >= inicio_atual, Cobrancas.data_negociacao <= fim_atual).scalar() or 0
 
     qcs_mes = base_query(Consultas).filter(Consultas.data_consulta >= inicio_atual, Consultas.data_consulta <= fim_atual).count()
-    vcs_mes = db.session.query(func.sum(Consultas.comissao_calculada)).filter(Consultas.data_consulta >= inicio_atual, Consultas.data_consulta <= fim_atual)
-    if not is_admin: vcs_mes = vcs_mes.filter(Consultas.user_id == current_user.id)
-    vcs_mes = vcs_mes.scalar() or 0
+    vcs_mes = db.session.query(func.sum(Consultas.comissao_calculada)).filter(Consultas.user_id == current_user.id, Consultas.data_consulta >= inicio_atual, Consultas.data_consulta <= fim_atual).scalar() or 0
 
     qp_mes = base_query(Procedimentos).filter(Procedimentos.data_procedimento >= inicio_atual, Procedimentos.data_procedimento <= fim_atual).count()
-    vp_mes = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter(Procedimentos.data_procedimento >= inicio_atual, Procedimentos.data_procedimento <= fim_atual)
-    if not is_admin: vp_mes = vp_mes.filter(Procedimentos.user_id == current_user.id)
-    vp_mes = vp_mes.scalar() or 0
+    vp_mes = db.session.query(func.sum(Procedimentos.comissao_calculada)).filter(Procedimentos.user_id == current_user.id, Procedimentos.data_procedimento >= inicio_atual, Procedimentos.data_procedimento <= fim_atual).scalar() or 0
 
     total_mes_atual = vv_mes + vcb_mes + vcs_mes + vp_mes
     
