@@ -19,7 +19,8 @@
                 </option>
                 <option value="Cartão" {% if venda.tipo_venda=='Cartão' %}selected{% endif %}>Cartão de Crédito (5%)
                 </option>
-                <option value="PIX" {% if venda.tipo_venda=='PIX' %}selected{% endif %}>PIX ((Valor/12)*0.20)</option>
+                <option value="PIX" {% if venda.tipo_venda=='PIX' %}selected{% endif %}>PIX (30%)</option>
+                <option value="EMPRESARIAL" {% if venda.tipo_venda in ('EMPRESARIAL', 'Empresarial') %}selected{% endif %}>Empresarial (20%)</option>
             </select>
         </div>
         <div>

@@ -28,14 +28,13 @@ from sqlalchemy.exc import OperationalError
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    error_str = str(e)
-    if "Name or service not known" in error_str or "could not translate host name" in error_str:
+    error_str = str(e).lower()
+    if any(msg in error_str for msg in ["name or service not known", "could not translate host name", "ssl connection", "connection closed", "operationalerror", "server closed the connection"]):
         return """
         <div style="font-family: sans-serif; text-align: center; margin-top: 50px;">
             <h2>Aguarde um instante! ☕</h2>
-            <p>O Banco de Dados do sistema no Render.com entrou em 'modo de economia de energia' por inatividade.</p>
-            <p>Ele já está sendo reativado automaticamente. Isso pode levar cerca de <b>1 a 2 minutos</b>.</p>
-            <p>Por favor, atualize esta página (F5) repetidamente até carregar.</p>
+            <p>O Banco de Dados do sistema no Render.com / Supabase está reestabelecendo a conexão por inatividade.</p>
+            <p>Isso leva apenas alguns segundos. Por favor, <b>atualize a página (F5)</b>.</p>
         </div>
         """, 503
     return f"<pre>{traceback.format_exc()}</pre>", 500
@@ -257,7 +256,8 @@ def vendas():
         comissao = 0
         if tipo == 'Talão': comissao = valor * 0.50
         elif tipo == 'Cartão': comissao = valor * 0.05
-        elif tipo == 'PIX': comissao = (valor / 12) * 0.20
+        elif tipo == 'PIX': comissao = valor * 0.30
+        elif tipo in ('EMPRESARIAL', 'Empresarial'): comissao = valor * 0.20
         
         nova = Vendas(user_id=current_user.id, nome_cliente=cliente, tipo_venda=tipo, valor_total=valor, comissao_calculada=comissao, data_venda=data_venda)
         db.session.add(nova)
@@ -298,7 +298,8 @@ def edit_venda(id):
         # Recalcular comissão
         if venda.tipo_venda == 'Talão': venda.comissao_calculada = venda.valor_total * 0.50
         elif venda.tipo_venda == 'Cartão': venda.comissao_calculada = venda.valor_total * 0.05
-        elif venda.tipo_venda == 'PIX': venda.comissao_calculada = (venda.valor_total / 12) * 0.20
+        elif venda.tipo_venda == 'PIX': venda.comissao_calculada = venda.valor_total * 0.30
+        elif venda.tipo_venda in ('EMPRESARIAL', 'Empresarial'): venda.comissao_calculada = venda.valor_total * 0.20
         
         db.session.commit()
         flash('Venda atualizada com sucesso!')
